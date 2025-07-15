@@ -3,7 +3,7 @@ import "./App.css";
 import React, { useState, useEffect, createContext } from "react";
 import { useSelector } from "react-redux";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import TodoApp from "./components/TodoAPP";
+import TodoApp from "./components/TodoApp";
 import Home from "./components/Home";
 import Login from "./components/Login";
 import Products from "./components/Products";
