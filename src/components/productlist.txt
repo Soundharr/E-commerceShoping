@@ -1,0 +1,149 @@
+import React, { useEffect, useState } from "react";
+import Button from "react-bootstrap/Button";
+import Card from "react-bootstrap/Card";
+import { OrbitProgress, TrophySpin } from "react-loading-indicators";
+import useFetch from "./custom-hook/useFetch";
+import { MdShoppingCart } from "react-icons/md";
+import { FaEdit } from "react-icons/fa";
+import { RiDeleteBin6Fill } from "react-icons/ri";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import Swal from "sweetalert2";
+import { useDispatch, useSelector } from "react-redux";
+import { addItem } from "../store/cartSlice";
+
+const ProductList = () => {
+  let navigate = useNavigate();
+  let { products, error, isLoading, setProducts } = useFetch(
+    "http://127.0.0.1:8000/products/"
+  );
+  const handleDelete = (id) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Only delete if confirmed
+        axios.delete(`http://127.0.0.1:8000/products/${id}`).then(() => {
+          Swal.fire("Deleted!", "Your product has been deleted.", "success");
+          let newProduct = products.filter((product) => product.id !== id);
+          setProducts(newProduct);
+        });
+      }
+    });
+  };
+
+  let dispatch = useDispatch();
+
+  let cartState = useSelector((state) => {
+    return state.cart;
+  });
+
+  let addItemToCart = (product) => {
+    let isProductInCart = cartState.some(
+      (cartProduct) => cartProduct.id === product.id
+    );
+
+    if (!isProductInCart) {
+      dispatch(addItem(product));
+      Swal.fire({
+        title: "success",
+        text: "Product Added",
+        icon: "success",
+        footer: `<a href="/cartlist" style="color: #d33; text-decoration: underline;">View Cart</a>`,
+      });
+    } else {
+      Swal.fire({
+        title: "Oops!",
+        text: "Product Already Added",
+        icon: "warning",
+        footer: `<a href="/cartlist" style="color: #d33; text-decoration: underline;">View Cart</a>`,
+      });
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div>
+        <h1>
+          <center>
+            <TrophySpin
+              color="#32cd32"
+              size="large"
+              text="Loading..."
+              textColor="red"
+            />
+            {/* <OrbitProgress variant="track-disc" speedPlus="1"textColor='red' text="Loading..." easing="linear"color="blue" size="large"/> */}
+          </center>
+        </h1>
+      </div>
+    );
+  } else {
+    return (
+      <div>
+        <article>
+          <span>Create a new Product</span>
+          <Button variant="primary" onClick={() => navigate("/newproduct")}>
+            {" "}
+            Click..
+          </Button>
+        </article>
+        <h1>ProductList</h1>
+        {products.length !== 0 && (
+          <section className="products">
+            {products.map((product) => (
+              <Card key={product.id} style={{ width: "18rem" }}>
+                <center>
+                  <Card.Img
+                    variant="top"
+                    src={product.image}
+                    style={{ width: "9rem", height: "12rem" }}
+                  />
+                </center>
+                <Card.Body>
+                  <Card.Title>{product.title}</Card.Title>
+                  <Card.Text>₹{product.price}</Card.Text>
+                </Card.Body>
+                <Card.Footer
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-evenly",
+                    alignItems: "center",
+                  }}
+                >
+                  <Button
+                    variant="primary"
+                    onClick={() => addItemToCart(product)}
+                  >
+                    <MdShoppingCart />
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      navigate(`/update/${product.id}`);
+                    }}
+                  >
+                    <FaEdit />
+                  </Button>
+                  <Button
+                    variant="danger"
+                    onClick={() => handleDelete(product.id)}
+                  >
+                    <RiDeleteBin6Fill />
+                  </Button>
+                </Card.Footer>
+              </Card>
+            ))}
+          </section>
+        )}
+        {error && <h1>{error}</h1>}
+      </div>
+    );
+  }
+};
+export default ProductList;

@@ -1,0 +1,360 @@
+Add new data without image
+
+import React, { useState } from "react";
+import { Button, Grid, Paper, TextField, Typography } from "@mui/material";
+
+const NewProducts = () => {
+  const paperStyle = {
+    width: 400,
+    margin: "20px auto",
+    padding: "20px",
+  };
+
+  const [newProduct, setNewProduct] = useState({
+    title: "",
+    price: 500,
+    description:
+      "Your perfect pack for everyday use and walks in the forest. Stash your laptop (up to 15 inches) in the padded sleeve, your everyday",
+    category: "",
+    image: "https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg", // default image
+    rating: {
+      rate: 0,
+      count: 0,
+    },
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    if (name.includes("rating.")) {
+      const fieldName = name.split("rating.")[1];
+      setNewProduct((prev) => ({
+        ...prev,
+        rating: {
+          ...prev.rating,
+          [fieldName]: parseFloat(value),
+        },
+      }));
+    } else {
+      setNewProduct((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
+  };
+
+  const handleAdd = (e) => {
+    e.preventDefault();
+
+    fetch("http://localhost:4000/products", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newProduct),
+    })
+      .then(() => {
+        alert("Data Added Successfully");
+        setNewProduct({
+          title: "",
+          price: 500,
+          description:
+            "Your perfect pack for everyday use and walks in the forest. Stash your laptop (up to 15 inches) in the padded sleeve, your everyday",
+          category: "",
+          image: "https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg",
+          rating: {
+            rate: 0,
+            count: 0,
+          },
+        });
+      })
+      .catch((err) => {
+        alert("Error while adding product");
+        console.error(err);
+      });
+  };
+
+  return (
+    <Paper elevation={20} style={paperStyle}>
+      <Typography variant="h5" textAlign="center" gutterBottom>
+        Create New Product
+      </Typography>
+      <form onSubmit={handleAdd}>
+        <Grid container spacing={2} direction="column">
+          <Grid item>
+            <TextField
+              value={newProduct.title}
+              name="title"
+              label="Title"
+              variant="outlined"
+              fullWidth
+              onChange={handleChange}
+              required
+            />
+          </Grid>
+          <Grid item>
+            <TextField
+              value={newProduct.category}
+              name="category"
+              label="Category"
+              variant="outlined"
+              fullWidth
+              onChange={handleChange}
+              required
+            />
+          </Grid>
+          <Grid item>
+            <TextField
+              value={newProduct.image}
+              name="image"
+              label="Image URL"
+              variant="outlined"
+              fullWidth
+              onChange={handleChange}
+              required
+            />
+          </Grid>
+          <Grid item>
+            <img
+              src={newProduct.image}
+              alt="Product Preview"
+              style={{ width: "100%", height: "200px", objectFit: "contain" }}
+            />
+          </Grid>
+          <Grid item container spacing={2}>
+            <Grid item xs={6}>
+              <TextField
+                value={newProduct.rating.rate}
+                name="rating.rate"
+                type="number"
+                label="Rate"
+                variant="outlined"
+                fullWidth
+                onChange={handleChange}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <TextField
+                value={newProduct.rating.count}
+                name="rating.count"
+                type="number"
+                label="Count"
+                variant="outlined"
+                fullWidth
+                onChange={handleChange}
+              />
+            </Grid>
+          </Grid>
+          <Grid item>
+            <Button type="submit" variant="contained" color="primary" fullWidth>
+              Add Product
+            </Button>
+          </Grid>
+        </Grid>
+      </form>
+    </Paper>
+  );
+};
+
+export default NewProducts;
+
+
+add new data with image
+
+import React, { useState } from "react";
+import { Button, Grid, Paper, TextField, Typography } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+
+const NewProducts = () => {
+  const navigate = useNavigate();
+
+  const paperStyle = {
+    width: 400,
+    margin: "20px auto",
+    padding: "20px",
+  };
+
+  const [newProduct, setNewProduct] = useState({
+    title: "",
+    price: 500,
+    description:
+      "Your perfect pack for everyday use and walks in the forest. Stash your laptop (up to 15 inches) in the padded sleeve.",
+    category: "",
+    image: "",
+    rating: {
+      rate: 0,
+      count: 0,
+    },
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    if (name.includes("rating.")) {
+      const fieldname = name.split("rating.")[1];
+      setNewProduct((prev) => ({
+        ...prev,
+        rating: {
+          ...prev.rating,
+          [fieldname]: value,
+        },
+      }));
+    } else {
+      setNewProduct((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
+  };
+
+  // Handle image file selection (jpg, png, gif, etc.)
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file && file.type.startsWith("image/")) {
+      const imageUrl = URL.createObjectURL(file);
+      setNewProduct((prev) => ({
+        ...prev,
+        image: imageUrl,
+      }));
+    } else {
+      alert("Please select a valid image file (jpg, png, gif, etc).");
+    }
+  };
+
+  const handleAdd = (e) => {
+    e.preventDefault();
+
+    fetch("http://localhost:4000/products", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newProduct),
+    })
+      .then(() => {
+        alert("Data Added Successfully");
+        // Reset form fields
+        setNewProduct({
+          title: "",
+          price: 500,
+          description:
+            "Your perfect pack for everyday use and walks in the forest. Stash your laptop (up to 15 inches) in the padded sleeve.",
+          category: "",
+          image: "",
+          rating: {
+            rate: 0,
+            count: 0,
+          },
+        });
+        // Navigate to product list page (change path as needed)
+        navigate("/products");
+      })
+      .catch((err) => {
+        console.error("Error adding product:", err);
+        alert("Failed to add product.");
+      });
+  };
+
+  return (
+    <Paper elevation={20} style={paperStyle}>
+      <Typography variant="h5" textAlign="center" gutterBottom>
+        Add New Product
+      </Typography>
+      <form onSubmit={handleAdd}>
+        <Grid container spacing={2} direction="column">
+          <Grid item>
+            <TextField
+              label="Title"
+              name="title"
+              value={newProduct.title}
+              onChange={handleChange}
+              fullWidth
+              required
+            />
+          </Grid>
+          <Grid item>
+            <TextField
+              label="Category"
+              name="category"
+              value={newProduct.category}
+              onChange={handleChange}
+              fullWidth
+              required
+            />
+          </Grid>
+          <Grid item>
+            <TextField
+              label="Price"
+              name="price"
+              type="number"
+              value={newProduct.price}
+              onChange={handleChange}
+              fullWidth
+              required
+            />
+          </Grid>
+          <Grid item>
+            <TextField
+              label="Description"
+              name="description"
+              value={newProduct.description}
+              onChange={handleChange}
+              multiline
+              rows={3}
+              fullWidth
+              required
+            />
+          </Grid>
+          <Grid item>
+            <input
+              accept="image/*"
+              type="file"
+              onChange={handleImageChange}
+              style={{ marginTop: "10px" }}
+            />
+          </Grid>
+          {newProduct.image && (
+            <Grid item>
+              <img
+                src={newProduct.image}
+                alt="Preview"
+                style={{ width: "150px", height: "150px", objectFit: "cover" }}
+              />
+            </Grid>
+          )}
+          <Grid item container spacing={2}>
+            <Grid item xs={6}>
+              <TextField
+                label="Rating Rate"
+                name="rating.rate"
+                type="number"
+                value={newProduct.rating.rate}
+                onChange={handleChange}
+                fullWidth
+                inputProps={{ step: "0.1", min: 0, max: 5 }}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <TextField
+                label="Rating Count"
+                name="rating.count"
+                type="number"
+                value={newProduct.rating.count}
+                onChange={handleChange}
+                fullWidth
+                inputProps={{ min: 0 }}
+              />
+            </Grid>
+          </Grid>
+          <Grid item>
+            <Button type="submit" variant="contained" fullWidth>
+              Add Product
+            </Button>
+          </Grid>
+        </Grid>
+      </form>
+    </Paper>
+  );
+};
+
+export default NewProducts;
