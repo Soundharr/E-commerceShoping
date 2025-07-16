@@ -246,20 +246,17 @@
 // export default ProductList;
 
 import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom"; // Only import useNavigate and useLocation here
+import { useNavigate, useLocation } from "react-router-dom";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 import { TrophySpin } from "react-loading-indicators";
-import { MdShoppingCart } from "react-icons/md";
-import { FaEdit } from "react-icons/fa";
-import { RiDeleteBin6Fill } from "react-icons/ri";
+import { MdShoppingCart } from "react-icons/md"; // Cart Icon
+import { FaCreditCard } from "react-icons/fa"; // Buy Now Icon
 import Swal from "sweetalert2";
 import { useDispatch, useSelector } from "react-redux";
 import { addItem } from "../store/cartSlice";
 import axios from "axios";
 import { Modal } from "react-bootstrap";
-// Remove the extra import here, keep just one import of useSearchParams
-// import { useSearchParams } from "react-router-dom";
 
 const ProductList = () => {
   const navigate = useNavigate();
@@ -272,14 +269,14 @@ const ProductList = () => {
   const [error, setError] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState("");
+  const [searchTerm, setSearchTerm] = useState(""); // New state for search term
 
   const baseUrl = "https://e-commerce-oagd.onrender.com/products/";
 
-  // Get the current URL search params using useLocation
-  const location = useLocation(); // Use useLocation to get search params from the URL
-  const searchParams = new URLSearchParams(location.search); // Use the URLSearchParams constructor
-
-  const selectedCategory = searchParams.get("category"); // Extract 'category' from the URL
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const selectedCategory = searchParams.get("category");
+  const searchQuery = searchParams.get("search"); // Get the search query from URL
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -312,14 +309,28 @@ const ProductList = () => {
     fetchCategories();
   }, []);
 
-  // Filter products based on the selected category from the query parameter
-  const filteredProducts = selectedCategory
-    ? products.filter((product) =>
-        product.category?.name
-          .toLowerCase()
-          .includes(selectedCategory.toLowerCase())
-      )
-    : products;
+  // Handle search term change in input field
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    navigate(
+      `/products?search=${e.target.value}&category=${selectedCategory || ""}`
+    );
+  };
+
+  // Filter products based on category and search term
+  const filteredProducts = products.filter((product) => {
+    const categoryMatch =
+      !selectedCategory ||
+      product.category?.name
+        .toLowerCase()
+        .includes(selectedCategory.toLowerCase());
+    const searchMatch =
+      !searchTerm ||
+      product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.description.toLowerCase().includes(searchTerm.toLowerCase());
+
+    return categoryMatch && searchMatch;
+  });
 
   const addItemToCart = (product) => {
     const exists = cartState.some((item) => item.id === product.id);
@@ -331,7 +342,7 @@ const ProductList = () => {
         footer: `<a href="/cartlist">Go to Cart</a>`,
       });
     } else {
-      dispatch(addItem(product)); // Dispatching addItem action to Redux store
+      dispatch(addItem(product));
       Swal.fire({
         title: "Added!",
         text: "Product added to cart",
@@ -374,9 +385,11 @@ const ProductList = () => {
               onChange={(e) => {
                 const category = e.target.value;
                 if (category) {
-                  navigate(`/products?category=${category}`);
+                  navigate(
+                    `/products?category=${category}&search=${searchTerm || ""}`
+                  );
                 } else {
-                  navigate("/products");
+                  navigate(`/products?search=${searchTerm || ""}`);
                 }
               }}
               value={selectedCategory || ""}
@@ -388,6 +401,17 @@ const ProductList = () => {
                 </option>
               ))}
             </select>
+          </div>
+
+          {/* Search Input */}
+          <div className="col-md-6">
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Search by name or description"
+              value={searchTerm}
+              onChange={handleSearchChange}
+            />
           </div>
         </div>
       </div>
@@ -455,16 +479,17 @@ const ProductList = () => {
                     <Button
                       size="sm"
                       variant="success"
-                      className="w-50 me-1"
+                      className="w-50 me-1 d-flex justify-content-center align-items-center"
                       onClick={() => addItemToCart(product)}
                     >
-                      <MdShoppingCart size={16} className="me-1" />
-                      Cart
+                      <MdShoppingCart size={14} className="me-1" />
+                      <span className="d-none d-sm-inline">Cart</span>
                     </Button>
+
                     <Button
                       size="sm"
                       variant="primary"
-                      className="w-50"
+                      className="w-50 d-flex justify-content-center align-items-center"
                       onClick={() => {
                         const exists = cartState.some(
                           (item) => item.id === product.id
@@ -475,7 +500,8 @@ const ProductList = () => {
                         navigate("/cartlist");
                       }}
                     >
-                      🛒 Buy Now
+                      <FaCreditCard size={14} className="me-1" />
+                      <span className="d-none d-sm-inline">Buy Now</span>
                     </Button>
                   </Card.Footer>
                 </Card>
@@ -484,7 +510,7 @@ const ProductList = () => {
           })}
         </div>
       ) : (
-        <h3 className="text-center">No products found in this category.</h3>
+        <h3 className="text-center">No products found for your search.</h3>
       )}
 
       {error && (

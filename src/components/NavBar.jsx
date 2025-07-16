@@ -53,8 +53,9 @@ function NavBar() {
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchTerm.trim()) {
-      navigate(`/products?category=${encodeURIComponent(searchTerm.trim())}`);
-      setSearchTerm("");
+      // Navigate to the products page with the search term as a query parameter
+      navigate(`/products?search=${encodeURIComponent(searchTerm.trim())}`);
+      setSearchTerm(""); // Clear the search bar after submitting
     }
   };
 
@@ -84,9 +85,6 @@ function NavBar() {
             <Nav.Link as={Link} to="/products">
               Products
             </Nav.Link>
-            {/* <Nav.Link as={Link} to="/newproduct">
-              New Product
-            </Nav.Link> */}
             <Nav.Link as={Link} to="/todoapp">
               TakeNotes
             </Nav.Link>
