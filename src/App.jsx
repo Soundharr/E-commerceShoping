@@ -1,7 +1,10 @@
 import "./App.css";
 import React, { useState, useEffect, createContext } from "react";
 import { useSelector } from "react-redux";
-import { HashRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
+import "bootstrap/dist/css/bootstrap.min.css";
+
 import TodoApp from "./components/TodoApp";
 import Home from "./components/Home";
 import Login from "./components/Login";
@@ -9,7 +12,6 @@ import Products from "./components/Products";
 import SignUp from "./components/SignUp";
 import ProductList from "./components/ProductList";
 import ProductDetails from "./components/ProductDetails";
-import "bootstrap/dist/css/bootstrap.min.css";
 import NavBar from "./components/NavBar";
 import NotFound from "./components/NotFound";
 import NewProducts from "./components/NewProducts";
@@ -20,11 +22,11 @@ import AddCategory from "./components/AddCategory";
 import UpdateCategory from "./components/UpdateCategory";
 import ProductCrud from "./components/ProductCrud";
 
-// Create the UserContext
+// 👇 Create UserContext
 export const UserContext = createContext();
 
 function App() {
-  const [user, setUser] = useState("Soundhar"); // Can be updated via login
+  const [user, setUser] = useState("Soundhar");
   const cart = useSelector((state) => state.cart);
 
   useEffect(() => {
@@ -33,7 +35,8 @@ function App() {
 
   return (
     <div className="app">
-      <Router>
+      {/* 👇 Important: Add basename for GitHub Pages */}
+      <Router basename="/E-commerceShoping">
         <UserContext.Provider value={{ user, setUser }}>
           <NavBar />
           <Routes>
