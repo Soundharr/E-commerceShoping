@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "homepage": "https://Soundharr.github.io/E-commerceShoping",
+  "homepage": "https://soundharr.github.io/E-commerceShoping",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
