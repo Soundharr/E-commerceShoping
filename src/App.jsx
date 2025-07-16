@@ -38,7 +38,7 @@ function App() {
         <UserContext.Provider value={{ user, setUser }}>
           <NavBar />
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/E-commerceShoping" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/products" element={<ProductList />} />
             <Route path="/productcrud" element={<ProductCrud />} />

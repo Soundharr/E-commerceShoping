@@ -67,7 +67,11 @@ function NavBar() {
       className="shadow-sm"
     >
       <Container fluid>
-        <Navbar.Brand as={Link} to="/" className="d-flex align-items-center">
+        <Navbar.Brand
+          as={Link}
+          to="/E-commerceShoping"
+          className="d-flex align-items-center"
+        >
           <img src={logo} alt="ShopSmart" height={32} className="me-2" />
         </Navbar.Brand>
 
@@ -78,7 +82,7 @@ function NavBar() {
             navbarScroll
             style={{ maxHeight: "300px" }}
           >
-            <Nav.Link as={Link} to="/">
+            <Nav.Link as={Link} to="/E-commerceShoping">
               Home
             </Nav.Link>
             <Nav.Link as={Link} to="/products">
