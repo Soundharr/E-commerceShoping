@@ -40,3 +40,13 @@
 .read-the-docs {
   color: #888;
 }
+
+.card-title {
+  font-size: 0.9rem;
+}
+.card-body {
+  padding: 0.5rem !important;
+}
+.card-footer button {
+  border: none;
+}

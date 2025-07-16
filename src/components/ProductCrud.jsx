@@ -261,7 +261,7 @@ import { Modal } from "react-bootstrap";
 // Remove the extra import here, keep just one import of useSearchParams
 // import { useSearchParams } from "react-router-dom";
 
-const ProductList = () => {
+const ProductCrud = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const cartState = useSelector((state) => state.cart); // Cart state from Redux
@@ -451,31 +451,32 @@ const ProductList = () => {
                     )}
                   </Card.Body>
 
-                  <Card.Footer className="d-flex justify-content-between px-2 py-1 bg-white border-0">
+                  <Card.Footer className="px-2 py-2 bg-white border-0 d-flex justify-content-between align-items-center">
                     <Button
                       size="sm"
-                      variant="success"
-                      className="w-50 me-1"
+                      variant="outline-primary"
                       onClick={() => addItemToCart(product)}
+                      title="Add to Cart"
                     >
-                      <MdShoppingCart size={16} className="me-1" />
-                      Cart
+                      <MdShoppingCart size={18} />
                     </Button>
+
                     <Button
                       size="sm"
-                      variant="primary"
-                      className="w-50"
-                      onClick={() => {
-                        const exists = cartState.some(
-                          (item) => item.id === product.id
-                        );
-                        if (!exists) {
-                          dispatch(addItem(product));
-                        }
-                        navigate("/cartlist");
-                      }}
+                      variant="outline-success"
+                      onClick={() => navigate(`/update/${product.id}`)}
+                      title="Edit Product"
                     >
-                      🛒 Buy Now
+                      <FaEdit size={16} />
+                    </Button>
+
+                    <Button
+                      size="sm"
+                      variant="outline-danger"
+                      onClick={() => navigate(`/delete/${product.id}`)}
+                      title="Delete Product"
+                    >
+                      <RiDeleteBin6Fill size={16} />
                     </Button>
                   </Card.Footer>
                 </Card>
@@ -523,4 +524,4 @@ const ProductList = () => {
   );
 };
 
-export default ProductList;
+export default ProductCrud;

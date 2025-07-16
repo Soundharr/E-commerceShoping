@@ -11,7 +11,7 @@ import SignUp from "./components/SignUp";
 import ProductList from "./components/ProductList";
 import ProductDetails from "./components/ProductDetails";
 import "bootstrap/dist/css/bootstrap.min.css";
-import NavBar from "./components/Navbar";
+import NavBar from "./components/NavBar";
 import NotFound from "./components/NotFound";
 import NewProducts from "./components/NewProducts";
 import UpdateProduct from "./components/UpdateProduct";
@@ -19,6 +19,7 @@ import CartList from "./components/CartList";
 import Footer from "./components/Footer";
 import AddCategory from "./components/AddCategory";
 import UpdateCategory from "./components/UpdateCategory";
+import ProductCrud from "./components/ProductCrud";
 
 // Create the UserContext
 export const UserContext = createContext();
@@ -40,6 +41,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/products" element={<ProductList />} />
+            <Route path="/productcrud" element={<ProductCrud />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/todoapp" element={<TodoApp />} />
             <Route path="/newproduct" element={<NewProducts />} />

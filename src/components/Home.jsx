@@ -5,49 +5,55 @@ import {
   Paper,
   Typography,
   CircularProgress,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 const Home = () => {
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true); // Track loading state
+  const [loading, setLoading] = useState(true);
+
+  // Responsive helpers
+  const theme = useTheme();
+  const isSmDown = useMediaQuery(theme.breakpoints.down("sm")); // mobile screen <=600px
 
   useEffect(() => {
-    // Fetch categories from the backend API
-    fetch("https://e-commerce-oagd.onrender.com/categories/") // API for categories
+    fetch("https://e-commerce-oagd.onrender.com/categories/")
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch categories");
         return res.json();
       })
       .then((data) => {
         const updatedCategories = data.map((category) => {
-          // Ensure the image URL is correctly constructed
           const imageUrl = category.image_url?.startsWith("http")
-            ? category.image_url // If the image already has a full URL, use it
-            : `https://e-commerce-oagd.onrender.com${category.image_url}`; // Concatenate the base URL to the image path
-
-          console.log("Constructed Image URL:", imageUrl); // Log for debugging
+            ? category.image_url
+            : `https://e-commerce-oagd.onrender.com${category.image_url}`;
 
           return { ...category, image: imageUrl };
         });
         setCategories(updatedCategories);
-        setLoading(false); // Set loading to false when data is fetched
+        setLoading(false);
       })
-      .catch((err) => {
-        console.error("Error fetching categories:", err);
-        setLoading(false); // Set loading to false even if there is an error
-      });
+      .catch(() => setLoading(false));
   }, []);
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+    <Container
+      maxWidth="lg"
+      sx={{
+        mt: 4,
+        mb: 4,
+        px: isSmDown ? 1 : 3, // less padding on mobile
+      }}
+    >
       {/* Hero Banner */}
       <Paper
         elevation={3}
         sx={{
-          height: "300px",
-          backgroundImage: "url('/assets/banner.jpg')",
+          height: isSmDown ? 180 : 300, // smaller height on mobile
+          backgroundImage: `url(${import.meta.env.BASE_URL}assets/banner.jpg)`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           color: "white",
@@ -59,20 +65,19 @@ const Home = () => {
         }}
       />
 
-      {/* Explore Categories Section */}
+      {/* Explore Categories */}
       <Box sx={{ mt: 6 }}>
-        <Typography variant="h5" gutterBottom>
+        <Typography variant={isSmDown ? "h6" : "h5"} gutterBottom>
           Explore Categories
         </Typography>
 
-        {/* Show loading spinner while categories are being fetched */}
         {loading ? (
           <Box
             sx={{
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-              height: "200px",
+              height: 200,
             }}
           >
             <CircularProgress />
@@ -81,38 +86,46 @@ const Home = () => {
           <Box
             sx={{
               display: "flex",
-              flexWrap: "nowrap",
               overflowX: "auto",
               gap: 2,
+              scrollSnapType: "x mandatory", // smooth snap scroll
+              paddingBottom: 1,
+              "&::-webkit-scrollbar": {
+                height: 6,
+              },
+              "&::-webkit-scrollbar-thumb": {
+                backgroundColor: "#ccc",
+                borderRadius: 3,
+              },
             }}
           >
             {categories.map(({ id, name, image }) => (
               <Paper
                 key={id}
                 elevation={4}
-                onClick={() => {
-                  console.log(`Navigating to category: ${name}`);
-                  navigate(`/products?category=${encodeURIComponent(name)}`);
-                }}
+                onClick={() =>
+                  navigate(`/products?category=${encodeURIComponent(name)}`)
+                }
                 sx={{
-                  width: "20%",
-                  minWidth: "180px",
+                  width: isSmDown ? "60%" : "20%", // wider on mobile for easier tap
+                  minWidth: 160,
                   cursor: "pointer",
                   overflow: "hidden",
                   borderRadius: 2,
                   textAlign: "center",
                   flexShrink: 0,
+                  scrollSnapAlign: "start",
                 }}
               >
                 <img
-                  src={image || "/path/to/default-image.jpg"} // Fallback image if no image exists
+                  src={image || "/path/to/default-image.jpg"}
                   alt={name}
                   onError={(e) => {
-                    e.target.src = "/path/to/default-image.jpg"; // Handle broken images
+                    e.target.src = "/path/to/default-image.jpg";
                   }}
                   style={{
                     width: "100%",
-                    height: "140px",
+                    height: 140,
                     objectFit: "cover",
                     borderRadius: "8px 8px 0 0",
                   }}
@@ -120,7 +133,7 @@ const Home = () => {
                 <Typography
                   variant="subtitle1"
                   fontWeight="bold"
-                  sx={{ mt: 1 }}
+                  sx={{ mt: 1, fontSize: isSmDown ? "1rem" : "1.1rem" }}
                 >
                   {name}
                 </Typography>
