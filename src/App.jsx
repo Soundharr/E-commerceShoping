@@ -1,8 +1,7 @@
-// App.jsx
 import "./App.css";
 import React, { useState, useEffect, createContext } from "react";
 import { useSelector } from "react-redux";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import TodoApp from "./components/TodoApp";
 import Home from "./components/Home";
 import Login from "./components/Login";
@@ -25,7 +24,7 @@ import ProductCrud from "./components/ProductCrud";
 export const UserContext = createContext();
 
 function App() {
-  const [user, setUser] = useState("Soundhar"); // This can be updated via login
+  const [user, setUser] = useState("Soundhar"); // Can be updated via login
   const cart = useSelector((state) => state.cart);
 
   useEffect(() => {
@@ -38,7 +37,7 @@ function App() {
         <UserContext.Provider value={{ user, setUser }}>
           <NavBar />
           <Routes>
-            <Route path="/E-commerceShoping" element={<Home />} />
+            <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/products" element={<ProductList />} />
             <Route path="/productcrud" element={<ProductCrud />} />
@@ -47,9 +46,9 @@ function App() {
             <Route path="/newproduct" element={<NewProducts />} />
             <Route path="/update/:id" element={<UpdateProduct />} />
             <Route path="/cartlist" element={<CartList />} />
-            <Route path="*" element={<NotFound />} />
             <Route path="/addcategory" element={<AddCategory />} />
             <Route path="/updatecategory/:id" element={<UpdateCategory />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
           <Footer />
         </UserContext.Provider>
