@@ -36,7 +36,7 @@ function App() {
   return (
     <div className="app">
       {/* 👇 Important: Add basename for GitHub Pages */}
-      <Router basename="/E-commerceShoping">
+      <Router>
         <UserContext.Provider value={{ user, setUser }}>
           <NavBar />
           <Routes>
