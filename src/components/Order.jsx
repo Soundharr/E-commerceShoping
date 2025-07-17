@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import Swal from "sweetalert2";
+import Swal from "sweetalert2"; // Import SweetAlert2
+import { Modal, Card } from "react-bootstrap"; // Import Bootstrap Modal and Card
 
 const Order = () => {
   const { id } = useParams();
@@ -22,6 +23,10 @@ const Order = () => {
     quantity: 1,
   });
 
+  const [showModal, setShowModal] = useState(false); // Modal visibility
+  const [modalImage, setModalImage] = useState(""); // Image to show in modal
+
+  // Check if product exists
   if (!product) {
     return (
       <div className="container mt-5 text-center">
@@ -35,6 +40,12 @@ const Order = () => {
       </div>
     );
   }
+
+  // Handle image click to enlarge in modal
+  const openModal = (imageUrl) => {
+    setModalImage(imageUrl);
+    setShowModal(true);
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -58,16 +69,40 @@ const Order = () => {
         total_amount,
       };
 
+      // Post data to backend (your address API)
       const response = await axios.post(
-        "https://your-backend-url.com/api/order/", // <-- Update this to your backend API endpoint
+        "https://your-backend-url.com/address/", // <-- Update this to your backend API endpoint
         payload
       );
 
-      Swal.fire("Success", "Order placed successfully!", "success");
-      navigate("/products");
+      // Send SMS after the order is placed
+      const smsResponse = await axios.post(
+        "https://your-backend-url.com/send-sms", // Your SMS backend endpoint
+        {
+          mobile: formData.mobile,
+          message: `Order confirmed for ${product.title}. Total amount: ₹${total_amount}. Thank you for your purchase!`,
+        }
+      );
+
+      // Show success confirmation notification
+      Swal.fire({
+        title: "Order Confirmed!",
+        text: `Your order for ${product.title} has been successfully placed. Total: ₹${total_amount}.`,
+        icon: "success",
+        confirmButtonText: "Okay",
+        onClose: () => {
+          // Redirect to products page after order confirmation
+          navigate("/products");
+        },
+      });
     } catch (err) {
       console.error(err);
-      Swal.fire("Error", "Failed to place order", "error");
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to place your order. Please try again later.",
+        icon: "error",
+        confirmButtonText: "Retry",
+      });
     }
   };
 
@@ -78,19 +113,31 @@ const Order = () => {
       <div className="row">
         {/* Product Summary */}
         <div className="col-md-5 mb-4">
-          <div className="card">
-            <img
-              src={product.image_url || "https://via.placeholder.com/300"}
+          <Card>
+            <Card.Img
+              variant="top"
+              src={product.image_url || "https://via.placeholder.com/150"}
               alt={product.title}
-              className="card-img-top p-3"
-              style={{ maxHeight: "250px", objectFit: "contain" }}
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent event bubbling
+                openModal(
+                  product.image_url || "https://via.placeholder.com/150"
+                ); // Open modal with image
+              }}
+              onError={
+                (e) => (e.target.src = "https://via.placeholder.com/150") // Fallback image
+              }
+              className="img-fluid"
+              style={{
+                height: "140px",
+                objectFit: "cover",
+                cursor: "pointer", // Pointer cursor on hover
+              }}
             />
-            <div className="card-body">
-              <h5 className="card-title">{product.title}</h5>
-              <p className="card-text text-muted">
-                Category: {product.category?.name || "N/A"}
-              </p>
-              <p className="card-text">
+            <Card.Body>
+              <Card.Title>{product.title}</Card.Title>
+              <Card.Text>Category: {product.category?.name || "N/A"}</Card.Text>
+              <Card.Text>
                 Price:{" "}
                 {product.discount_price ? (
                   <>
@@ -106,9 +153,9 @@ const Order = () => {
                     ₹{Number(product.price).toLocaleString()}
                   </span>
                 )}
-              </p>
-            </div>
-          </div>
+              </Card.Text>
+            </Card.Body>
+          </Card>
         </div>
 
         {/* Customer Form */}
@@ -220,6 +267,18 @@ const Order = () => {
                   required
                 />
               </div>
+              <div className="col-md-3">
+                <input
+                  type="text"
+                  className="form-control"
+                  value={
+                    (product.discount_price || product.price) *
+                    formData.quantity
+                  }
+                  readOnly
+                  placeholder="Total Price"
+                />
+              </div>
             </div>
 
             <button type="submit" className="btn btn-danger mt-4 px-4">
@@ -228,6 +287,20 @@ const Order = () => {
           </form>
         </div>
       </div>
+
+      {/* Modal to display enlarged image */}
+      <Modal show={showModal} onHide={() => setShowModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Image Preview</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <img
+            src={modalImage}
+            alt="Large View"
+            style={{ width: "100%", height: "auto" }}
+          />
+        </Modal.Body>
+      </Modal>
     </div>
   );
 };

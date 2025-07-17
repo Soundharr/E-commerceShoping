@@ -55,7 +55,7 @@ const Footer = () => {
             <ul className="list-unstyled">
               <li className="footer-item">
                 <FaBoxOpen className="footer-icon" />
-                <a href="/products" className="footer-link">
+                <a href="/" className="footer-link">
                   Products
                 </a>
               </li>

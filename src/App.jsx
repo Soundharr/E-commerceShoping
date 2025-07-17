@@ -41,9 +41,9 @@ function App() {
         <UserContext.Provider value={{ user, setUser }}>
           <NavBar />
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/home" element={<Home />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/products" element={<ProductList />} />
+            <Route path="/" element={<ProductList />} />
             <Route path="/productcrud" element={<ProductCrud />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/todoapp" element={<TodoApp />} />

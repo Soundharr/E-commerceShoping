@@ -79,10 +79,10 @@ function NavBar() {
             navbarScroll
             style={{ maxHeight: "300px" }}
           >
-            <Nav.Link as={Link} to="/">
+            <Nav.Link as={Link} to="/home">
               Home
             </Nav.Link>
-            <Nav.Link as={Link} to="/products">
+            <Nav.Link as={Link} to="/">
               Products
             </Nav.Link>
             <Nav.Link as={Link} to="/todoapp">
