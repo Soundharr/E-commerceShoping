@@ -1,128 +1,231 @@
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import { useLocation, useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 const Order = () => {
   const { id } = useParams();
+  const location = useLocation();
   const navigate = useNavigate();
-  const [product, setProduct] = useState(null);
+  const product = location.state?.product;
 
-  useEffect(() => {
-    axios
-      .get(`https://e-commerce-oagd.onrender.com/products/${id}`)
-      .then((res) => setProduct(res.data))
-      .catch((err) => console.error(err));
-  }, [id]);
+  const [formData, setFormData] = useState({
+    first_name: "",
+    last_name: "",
+    email: "",
+    mobile: "",
+    door_no: "",
+    area: "",
+    city: "",
+    state: "",
+    pincode: "",
+    quantity: 1,
+  });
 
-  if (!product) return <div className="text-center mt-5">Loading...</div>;
+  if (!product) {
+    return (
+      <div className="container mt-5 text-center">
+        <h4>Product not found!</h4>
+        <button
+          className="btn btn-primary mt-3"
+          onClick={() => navigate("/products")}
+        >
+          Back to Products
+        </button>
+      </div>
+    );
+  }
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: name === "quantity" ? parseInt(value) : value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const total_amount = product.discount_price
+        ? product.discount_price * formData.quantity
+        : product.price * formData.quantity;
+
+      const payload = {
+        ...formData,
+        product: product.id,
+        total_amount,
+      };
+
+      const response = await axios.post(
+        "https://your-backend-url.com/api/order/", // <-- Update this to your backend API endpoint
+        payload
+      );
+
+      Swal.fire("Success", "Order placed successfully!", "success");
+      navigate("/products");
+    } catch (err) {
+      console.error(err);
+      Swal.fire("Error", "Failed to place order", "error");
+    }
+  };
 
   return (
     <div className="container mt-4">
-      <div
-        className="p-4 rounded shadow-sm"
-        style={{ backgroundColor: "#fff", border: "1px solid #ddd" }}
-      >
-        <div className="row">
-          {/* Left Column - Product Image */}
-          <div className="col-md-5 d-flex justify-content-center align-items-start">
+      <h3 className="mb-4 text-center">Confirm Your Order</h3>
+
+      <div className="row">
+        {/* Product Summary */}
+        <div className="col-md-5 mb-4">
+          <div className="card">
             <img
               src={product.image_url || "https://via.placeholder.com/300"}
               alt={product.title}
-              className="img-fluid"
-              style={{
-                maxHeight: "400px",
-                objectFit: "contain",
-                padding: "10px",
-                background: "#fafafa",
-                border: "1px solid #eee",
-              }}
+              className="card-img-top p-3"
+              style={{ maxHeight: "250px", objectFit: "contain" }}
             />
-          </div>
-
-          {/* Right Column - Product Details */}
-          <div className="col-md-7">
-            {/* Back Button */}
-            <button
-              onClick={() => navigate("/products")}
-              className="btn btn-link text-decoration-none mb-3 d-flex align-items-center"
-              style={{ color: "#2874f0", fontWeight: "500" }}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                fill="currentColor"
-                className="bi bi-arrow-left me-2"
-                viewBox="0 0 16 16"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M15 8a.5.5 0 0 1-.5.5H2.707l4.147 4.146a.5.5 0 0 1-.708.708l-5-5a.5.5 0 0 1 0-.708l5-5a.5.5 0 1 1 .708.708L2.707 7.5H14.5A.5.5 0 0 1 15 8z"
-                />
-              </svg>
-              Back to Products
-            </button>
-
-            {/* Product Title */}
-            <h3 className="fw-semibold">{product.title}</h3>
-
-            {/* Category */}
-            <p className="text-muted mb-1" style={{ fontSize: "14px" }}>
-              Category:{" "}
-              <span className="text-dark fw-medium">
-                {product.category?.name}
-              </span>
-            </p>
-
-            {/* Stock and Status */}
-            <p
-              className="mb-2"
-              style={{
-                fontSize: "14px",
-                fontWeight: 500,
-                color: product.stock > 0 ? "#388e3c" : "#d32f2f",
-              }}
-            >
-              {product.stock > 0
-                ? `In Stock (${product.stock} available)`
-                : "Out of Stock"}
-            </p>
-            <p
-              className="mb-3"
-              style={{
-                fontSize: "14px",
-                color: product.is_active ? "#2e7d32" : "#c62828",
-              }}
-            >
-              {product.is_active ? "Active Product" : "Inactive Product"}
-            </p>
-
-            {/* Pricing Section */}
-            <div className="d-flex align-items-center mb-3">
-              {product.discount_price ? (
-                <>
-                  <h4 className="text-danger me-3 mb-0 fw-bold">
-                    ₹{Number(product.discount_price).toLocaleString()}
-                  </h4>
-                  <h6 className="text-muted mb-0">
-                    <del>₹{Number(product.price).toLocaleString()}</del>
-                  </h6>
-                </>
-              ) : (
-                <h4 className="text-success fw-bold">
-                  ₹{Number(product.price).toLocaleString()}
-                </h4>
-              )}
-            </div>
-
-            {/* Description */}
-            <div className="mb-4">
-              <h5 className="fw-semibold mb-2">Product Description</h5>
-              <p style={{ fontSize: "15px", lineHeight: "1.6" }}>
-                {product.description}
+            <div className="card-body">
+              <h5 className="card-title">{product.title}</h5>
+              <p className="card-text text-muted">
+                Category: {product.category?.name || "N/A"}
+              </p>
+              <p className="card-text">
+                Price:{" "}
+                {product.discount_price ? (
+                  <>
+                    <span className="text-danger fw-bold me-2">
+                      ₹{Number(product.discount_price).toLocaleString()}
+                    </span>
+                    <del className="text-muted">
+                      ₹{Number(product.price).toLocaleString()}
+                    </del>
+                  </>
+                ) : (
+                  <span className="text-success fw-bold">
+                    ₹{Number(product.price).toLocaleString()}
+                  </span>
+                )}
               </p>
             </div>
           </div>
+        </div>
+
+        {/* Customer Form */}
+        <div className="col-md-7">
+          <form onSubmit={handleSubmit}>
+            <div className="row g-3">
+              <div className="col-md-6">
+                <input
+                  name="first_name"
+                  className="form-control"
+                  placeholder="First Name"
+                  value={formData.first_name}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div className="col-md-6">
+                <input
+                  name="last_name"
+                  className="form-control"
+                  placeholder="Last Name"
+                  value={formData.last_name}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div className="col-md-6">
+                <input
+                  name="email"
+                  type="email"
+                  className="form-control"
+                  placeholder="Email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div className="col-md-6">
+                <input
+                  name="mobile"
+                  type="number"
+                  className="form-control"
+                  placeholder="Mobile Number"
+                  value={formData.mobile}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div className="col-md-4">
+                <input
+                  name="door_no"
+                  className="form-control"
+                  placeholder="Door No."
+                  value={formData.door_no}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div className="col-md-8">
+                <input
+                  name="area"
+                  className="form-control"
+                  placeholder="Area / Street"
+                  value={formData.area}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div className="col-md-6">
+                <input
+                  name="city"
+                  className="form-control"
+                  placeholder="City"
+                  value={formData.city}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div className="col-md-4">
+                <input
+                  name="state"
+                  className="form-control"
+                  placeholder="State"
+                  value={formData.state}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div className="col-md-2">
+                <input
+                  name="pincode"
+                  type="number"
+                  className="form-control"
+                  placeholder="Pincode"
+                  value={formData.pincode}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div className="col-md-3">
+                <input
+                  name="quantity"
+                  type="number"
+                  min="1"
+                  className="form-control"
+                  placeholder="Quantity"
+                  value={formData.quantity}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            </div>
+
+            <button type="submit" className="btn btn-danger mt-4 px-4">
+              Confirm Order
+            </button>
+          </form>
         </div>
       </div>
     </div>

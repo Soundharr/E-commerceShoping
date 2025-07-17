@@ -253,16 +253,10 @@ const ProductList = () => {
                       className="w-50 d-flex justify-content-center align-items-center"
                       onClick={(e) => {
                         e.stopPropagation();
-                        const exists = cartState.some(
-                          (item) => item.id === product.id
-                        );
-                        if (!exists) {
-                          dispatch(addItem(product));
-                        }
-                        navigate("/cartlist");
+                        navigate(`/productdetails/${product.id}`);
                       }}
                     >
-                      {/* <FaCreditCard size={10} className="me-1" /> */}
+                      <FaCreditCard size={10} className="me-1" />
                       <span className="d-none d-sm-inline">View</span>
                     </Button>
                   </Card.Footer>

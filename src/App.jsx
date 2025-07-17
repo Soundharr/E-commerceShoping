@@ -21,6 +21,7 @@ import Footer from "./components/Footer";
 import AddCategory from "./components/AddCategory";
 import UpdateCategory from "./components/UpdateCategory";
 import ProductCrud from "./components/ProductCrud";
+import Order from "./components/Order";
 
 // 👇 Create UserContext
 export const UserContext = createContext();
@@ -52,7 +53,7 @@ function App() {
             <Route path="/addcategory" element={<AddCategory />} />
             <Route path="/updatecategory/:id" element={<UpdateCategory />} />
             <Route path="/productdetails/:id" element={<ProductDetails />} />
-            <Route path="/order/:id" element={<ProductDetails />} />
+            <Route path="/order/:id" element={<Order />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <Footer />

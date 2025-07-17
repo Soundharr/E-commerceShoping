@@ -1,10 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import { addItem } from "../store/cartSlice";
+import Swal from "sweetalert2";
 
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const cartState = useSelector((state) => state.cart);
+
   const [product, setProduct] = useState(null);
 
   useEffect(() => {
@@ -15,6 +21,34 @@ const ProductDetails = () => {
   }, [id]);
 
   if (!product) return <div className="text-center mt-5">Loading...</div>;
+
+  const addItemToCart = () => {
+    const exists = cartState.some((item) => item.id === product.id);
+    if (exists) {
+      Swal.fire({
+        title: "Oops!",
+        text: "Product already in cart",
+        icon: "warning",
+        footer: `<a href="/cartlist">Go to Cart</a>`,
+      });
+    } else {
+      dispatch(addItem(product));
+      Swal.fire({
+        title: "Added!",
+        text: "Product added to cart",
+        icon: "success",
+        footer: `<a href="/cartlist">Go to Cart</a>`,
+      });
+    }
+  };
+
+  const handleBuyNow = () => {
+    const exists = cartState.some((item) => item.id === product.id);
+    if (!exists) {
+      dispatch(addItem(product));
+    }
+    navigate(`/order/${product.id}`, { state: { product } });
+  };
 
   return (
     <div className="container mt-4">
@@ -127,20 +161,14 @@ const ProductDetails = () => {
             <div className="d-flex gap-3">
               <button
                 className="btn btn-warning px-4 py-2 fw-bold"
-                onClick={() => {
-                  // Add to cart logic here if needed (e.g., dispatch(addItem(product)))
-                  navigate("/cartlist");
-                }}
+                onClick={addItemToCart}
               >
                 ADD TO CART
               </button>
 
               <button
                 className="btn btn-danger px-4 py-2 fw-bold"
-                onClick={() => {
-                  // Add to cart logic here if needed
-                  navigate("/checkout"); // or "/cartlist" if checkout is not separate yet
-                }}
+                onClick={handleBuyNow}
               >
                 BUY NOW
               </button>
