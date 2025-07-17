@@ -4,13 +4,23 @@ import { RiDeleteBin6Fill } from "react-icons/ri";
 import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
 import { removeItem } from "../store/cartSlice";
+import { useNavigate } from "react-router-dom"; // Import useNavigate to navigate between pages
 
 const CartList = () => {
   const cartProduct = useSelector((state) => state.cart); // Access the persisted cart from Redux
   const dispatch = useDispatch();
+  const navigate = useNavigate(); // Hook for navigation
 
   const handleDelete = (id) => {
     dispatch(removeItem(id)); // Dispatch remove action
+  };
+
+  const handleBuyNow = (product) => {
+    navigate(`/order/${product.id}`, { state: { product } }); // Navigate to the order page with the selected product
+  };
+
+  const handleBackToProduct = (productId) => {
+    navigate(`/product/${productId}`); // Navigate to the individual product page
   };
 
   if (!Array.isArray(cartProduct)) return <p>Loading...</p>;
@@ -25,11 +35,6 @@ const CartList = () => {
           style={{ gap: "1rem" }}
         >
           {cartProduct.map((product) => {
-            // Log for debugging image_url
-            console.log("Product:", product);
-            console.log("Image URL:", product.image_url);
-
-            // Construct full image URL
             const fullImageUrl = product.image_url
               ? product.image_url
               : "/images/fallback-image.png"; // Fallback image
@@ -59,11 +64,32 @@ const CartList = () => {
                 <Card.Body className="text-center">
                   <Card.Title>{product.title}</Card.Title>
                   <Card.Text className="text-muted">₹{product.price}</Card.Text>
+
+                  {/* Delete Button */}
                   <Button
                     variant="danger"
+                    className="mb-3"
                     onClick={() => handleDelete(product.id)}
                   >
                     Remove <RiDeleteBin6Fill />
+                  </Button>
+
+                  {/* Buy Now Button */}
+                  <Button
+                    variant="success"
+                    className="mb-3"
+                    onClick={() => handleBuyNow(product)}
+                  >
+                    Buy Now
+                  </Button>
+
+                  {/* Back to Product Page Button */}
+                  <Button
+                    variant="secondary"
+                    className="mb-3"
+                    onClick={() => handleBackToProduct(product.id)}
+                  >
+                    Back to Product
                   </Button>
                 </Card.Body>
               </Card>
@@ -74,6 +100,9 @@ const CartList = () => {
         <div className="text-center mt-5">
           <h3>Your cart is empty.</h3>
           <p>Start adding products to see them here.</p>
+          <Button variant="primary" onClick={() => navigate("/")}>
+            Go to Products
+          </Button>
         </div>
       )}
     </div>

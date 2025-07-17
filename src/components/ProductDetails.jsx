@@ -4,6 +4,7 @@ import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { addItem } from "../store/cartSlice";
 import Swal from "sweetalert2";
+import { TrophySpin } from "react-loading-indicators";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -20,7 +21,14 @@ const ProductDetails = () => {
       .catch((err) => console.error(err));
   }, [id]);
 
-  if (!product) return <div className="text-center mt-5">Loading...</div>;
+  if (!product)
+    return (
+      <div className="text-center mt-5">
+        <center>
+          <TrophySpin color="#32cd32" size="large" text="Loading..." />
+        </center>
+      </div>
+    );
 
   const addItemToCart = () => {
     const exists = cartState.some((item) => item.id === product.id);

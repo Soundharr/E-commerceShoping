@@ -3,6 +3,7 @@ import { useLocation, useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2"; // Import SweetAlert2
 import { Modal, Card } from "react-bootstrap"; // Import Bootstrap Modal and Card
+import Button from "react-bootstrap/Button";
 
 const Order = () => {
   const { id } = useParams();
@@ -301,6 +302,9 @@ const Order = () => {
           />
         </Modal.Body>
       </Modal>
+      <Button variant="warning" onClick={() => navigate("/")}>
+        Go to Products
+      </Button>
     </div>
   );
 };
