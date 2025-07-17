@@ -51,6 +51,8 @@ function App() {
             <Route path="/cartlist" element={<CartList />} />
             <Route path="/addcategory" element={<AddCategory />} />
             <Route path="/updatecategory/:id" element={<UpdateCategory />} />
+            <Route path="/productdetails/:id" element={<ProductDetails />} />
+            <Route path="/order/:id" element={<ProductDetails />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <Footer />

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const ProductDetails = () => {
+const Order = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
@@ -122,29 +122,6 @@ const ProductDetails = () => {
                 {product.description}
               </p>
             </div>
-
-            {/* Action Buttons */}
-            <div className="d-flex gap-3">
-              <button
-                className="btn btn-warning px-4 py-2 fw-bold"
-                onClick={() => {
-                  // Add to cart logic here if needed (e.g., dispatch(addItem(product)))
-                  navigate("/cartlist");
-                }}
-              >
-                ADD TO CART
-              </button>
-
-              <button
-                className="btn btn-danger px-4 py-2 fw-bold"
-                onClick={() => {
-                  // Add to cart logic here if needed
-                  navigate("/checkout"); // or "/cartlist" if checkout is not separate yet
-                }}
-              >
-                BUY NOW
-              </button>
-            </div>
           </div>
         </div>
       </div>
@@ -152,4 +129,4 @@ const ProductDetails = () => {
   );
 };
 
-export default ProductDetails;
+export default Order;
