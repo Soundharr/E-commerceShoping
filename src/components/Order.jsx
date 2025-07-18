@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import Swal from "sweetalert2"; // Import SweetAlert2
-import { Modal, Card } from "react-bootstrap"; // Import Bootstrap Modal and Card
+import Swal from "sweetalert2";
+import { Modal, Card } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 
 const Order = () => {
@@ -24,10 +24,9 @@ const Order = () => {
     quantity: 1,
   });
 
-  const [showModal, setShowModal] = useState(false); // Modal visibility
-  const [modalImage, setModalImage] = useState(""); // Image to show in modal
+  const [showModal, setShowModal] = useState(false);
+  const [modalImage, setModalImage] = useState("");
 
-  // Check if product exists
   if (!product) {
     return (
       <div className="container mt-5 text-center">
@@ -42,7 +41,6 @@ const Order = () => {
     );
   }
 
-  // Handle image click to enlarge in modal
   const openModal = (imageUrl) => {
     setModalImage(imageUrl);
     setShowModal(true);
@@ -70,31 +68,22 @@ const Order = () => {
         total_amount,
       };
 
-      // Post data to backend (your address API)
-      const response = await axios.post(
-        "https://your-backend-url.com/address/", // <-- Update this to your backend API endpoint
+      // Post order to backend API — update URL as needed
+      await axios.post(
+        "https://e-commerce-oagd.onrender.com/shop/address/",
         payload
       );
 
-      // Send SMS after the order is placed
-      const smsResponse = await axios.post(
-        "https://your-backend-url.com/send-sms", // Your SMS backend endpoint
-        {
-          mobile: formData.mobile,
-          message: `Order confirmed for ${product.title}. Total amount: ₹${total_amount}. Thank you for your purchase!`,
-        }
-      );
+      // Removed SMS sending code here
 
-      // Show success confirmation notification
+      // Success alert and navigate after user clicks "Okay"
       Swal.fire({
         title: "Order Confirmed!",
         text: `Your order for ${product.title} has been successfully placed. Total: ₹${total_amount}.`,
         icon: "success",
         confirmButtonText: "Okay",
-        onClose: () => {
-          // Redirect to products page after order confirmation
-          navigate("/products");
-        },
+      }).then(() => {
+        navigate("/products");
       });
     } catch (err) {
       console.error(err);
@@ -120,19 +109,19 @@ const Order = () => {
               src={product.image_url || "https://via.placeholder.com/150"}
               alt={product.title}
               onClick={(e) => {
-                e.stopPropagation(); // Prevent event bubbling
+                e.stopPropagation();
                 openModal(
                   product.image_url || "https://via.placeholder.com/150"
-                ); // Open modal with image
+                );
               }}
-              onError={
-                (e) => (e.target.src = "https://via.placeholder.com/150") // Fallback image
+              onError={(e) =>
+                (e.target.src = "https://via.placeholder.com/150")
               }
               className="img-fluid"
               style={{
                 height: "140px",
                 objectFit: "cover",
-                cursor: "pointer", // Pointer cursor on hover
+                cursor: "pointer",
               }}
             />
             <Card.Body>
@@ -256,26 +245,67 @@ const Order = () => {
                   required
                 />
               </div>
-              <div className="col-md-3">
+
+              <div className="col-md-3 d-flex align-items-center">
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary"
+                  onClick={() =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      quantity: Math.max(1, prev.quantity - 1),
+                    }))
+                  }
+                  disabled={formData.quantity <= 1}
+                >
+                  &minus;
+                </button>
+
                 <input
                   name="quantity"
                   type="number"
                   min="1"
-                  className="form-control"
+                  max="10"
+                  className="form-control text-center mx-2"
                   placeholder="Quantity"
                   value={formData.quantity}
-                  onChange={handleChange}
+                  onChange={(e) => {
+                    let val = Number(e.target.value);
+                    if (val < 1) val = 1;
+                    else if (val > 10) val = 10;
+                    setFormData((prev) => ({ ...prev, quantity: val }));
+                  }}
                   required
+                  style={{ maxWidth: "60px" }}
                 />
+
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary"
+                  onClick={() => {
+                    if (formData.quantity >= 10) {
+                      Swal.fire({
+                        icon: "warning",
+                        title: "Maximum quantity reached",
+                        text: "You cannot add more than 10 items.",
+                      });
+                      return;
+                    }
+                    setFormData((prev) => ({
+                      ...prev,
+                      quantity: prev.quantity + 1,
+                    }));
+                  }}
+                >
+                  &#43;
+                </button>
               </div>
+
               <div className="col-md-3">
                 <input
                   type="text"
                   className="form-control"
-                  value={
-                    (product.discount_price || product.price) *
-                    formData.quantity
-                  }
+                  value={`₹ ${(product.discount_price || product.price) * formData.quantity}`}
                   readOnly
                   placeholder="Total Price"
                 />
@@ -302,7 +332,8 @@ const Order = () => {
           />
         </Modal.Body>
       </Modal>
-      <Button variant="warning" onClick={() => navigate("/")}>
+
+      <Button variant="warning" onClick={() => navigate("/")} className="mt-3">
         Go to Products
       </Button>
     </div>

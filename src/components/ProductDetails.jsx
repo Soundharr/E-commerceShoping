@@ -85,7 +85,7 @@ const ProductDetails = () => {
           <div className="col-md-7">
             {/* Back Button */}
             <button
-              onClick={() => navigate("/products")}
+              onClick={() => navigate("/")}
               className="btn btn-link text-decoration-none mb-3 d-flex align-items-center"
               style={{ color: "#2874f0", fontWeight: "500" }}
             >

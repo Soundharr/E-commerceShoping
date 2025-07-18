@@ -10,9 +10,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { addItem } from "../store/cartSlice";
 import axios from "axios";
 import { Modal } from "react-bootstrap";
+import "../ProductList.css"; // ⬅️ Add this for custom mobile styles
 
 const ProductList = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
   const cartState = useSelector((state) => state.cart);
 
@@ -23,13 +25,11 @@ const ProductList = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
 
   const baseUrl = "https://e-commerce-oagd.onrender.com/products/";
-  const location = useLocation();
-  const searchParams = new URLSearchParams(location.search);
-  const selectedCategory = searchParams.get("category");
-  const searchQuery = searchParams.get("search");
 
+  // Fetch products
   useEffect(() => {
     const fetchProducts = async () => {
       setIsLoading(true);
@@ -38,7 +38,6 @@ const ProductList = () => {
         setProducts(response.data);
         setError("");
       } catch (err) {
-        console.error(err);
         setError("Failed to fetch products");
       } finally {
         setIsLoading(false);
@@ -47,6 +46,7 @@ const ProductList = () => {
     fetchProducts();
   }, []);
 
+  // Fetch categories
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -61,16 +61,23 @@ const ProductList = () => {
     fetchCategories();
   }, []);
 
+  // Update search/category from URL
   useEffect(() => {
-    if (searchQuery) {
-      setSearchTerm(searchQuery);
-    }
-  }, [searchQuery]);
+    const searchParams = new URLSearchParams(location.search);
+    setSearchTerm(searchParams.get("search") || "");
+    setSelectedCategory(searchParams.get("category") || "");
+  }, [location.search]);
 
-  const handleSearchChange = (e) => {
-    const value = e.target.value;
-    setSearchTerm(value);
-    navigate(`/products?search=${value}&category=${selectedCategory || ""}`);
+  // Debounce search update
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      navigate(`/?search=${searchTerm}&category=${selectedCategory}`);
+    }, 300);
+    return () => clearTimeout(delayDebounce);
+  }, [searchTerm, selectedCategory]);
+
+  const handleCategoryChange = (e) => {
+    setSelectedCategory(e.target.value);
   };
 
   const filteredProducts = products.filter((product) => {
@@ -118,36 +125,23 @@ const ProductList = () => {
 
   if (isLoading) {
     return (
-      <div>
-        <center>
-          <TrophySpin color="#32cd32" size="large" text="Loading..." />
-        </center>
+      <div className="text-center mt-5">
+        <TrophySpin color="#32cd32" size="large" text="Loading..." />
       </div>
     );
   }
 
   return (
-    <div className="container mt-4">
-      <h1 className="text-center mb-4">Product List</h1>
-
-      <div className="filters mb-4">
-        <div className="row">
-          <div className="col-md-3">
+    <div className="container mt-2 product-list-wrapper">
+      <div className="sticky-topbar shadow-sm px-2 py-2 bg-white">
+        <div className="row gx-2">
+          <div className="col-6">
             <select
-              className="form-select"
-              onChange={(e) => {
-                const category = e.target.value;
-                if (category) {
-                  navigate(
-                    `/products?category=${category}&search=${searchTerm || ""}`
-                  );
-                } else {
-                  navigate(`/products?search=${searchTerm || ""}`);
-                }
-              }}
-              value={selectedCategory || ""}
+              className="form-select form-select-sm"
+              onChange={handleCategoryChange}
+              value={selectedCategory}
             >
-              <option value="">All Category</option>
+              <option value="">All Categories</option>
               {categories.map((category) => (
                 <option key={category.id} value={category.name}>
                   {category.name}
@@ -155,119 +149,99 @@ const ProductList = () => {
               ))}
             </select>
           </div>
-
-          <div className="col-md-6">
+          <div className="col-6">
             <input
               type="text"
-              className="form-control"
-              placeholder="Search by name or description"
+              className="form-control form-control-sm"
+              placeholder="Search"
               value={searchTerm}
-              onChange={handleSearchChange}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
         </div>
       </div>
 
-      {filteredProducts.length > 0 ? (
-        <div className="row">
-          {filteredProducts.map((product) => {
-            const imageUrl =
-              product.image_url || "https://via.placeholder.com/150";
+      <div className="mt-3">
+        {filteredProducts.length > 0 ? (
+          <div className="row gx-2">
+            {filteredProducts.map((product) => {
+              const imageUrl =
+                product.image_url || "https://via.placeholder.com/150";
 
-            return (
-              <div className="col-6 col-sm-4 col-md-3 mb-3" key={product.id}>
-                <Card
-                  className="h-100 shadow-sm border-0"
-                  onClick={() => navigate(`/productdetails/${product.id}`)}
-                  style={{ cursor: "pointer" }}
-                >
-                  <Card.Img
-                    variant="top"
-                    src={imageUrl}
-                    alt={product.title}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openModal(imageUrl);
-                    }}
-                    onError={(e) =>
-                      (e.target.src = "https://via.placeholder.com/150")
-                    }
-                    className="img-fluid"
-                    style={{
-                      height: "140px",
-                      objectFit: "cover",
-                      cursor: "pointer",
-                    }}
-                  />
-                  <Card.Body className="p-2">
-                    <Card.Title
-                      className="text-truncate mb-1"
-                      title={product.title}
-                      style={{ fontSize: "0.9rem", fontWeight: "500" }}
-                    >
-                      {product.title}
-                    </Card.Title>
-
-                    {product.discount_price ? (
-                      <>
-                        <div
-                          style={{ fontSize: "0.75rem" }}
-                          className="text-muted"
-                        >
-                          <del>₹{Number(product.price).toLocaleString()}</del>
-                        </div>
-                        <div
-                          style={{ fontSize: "0.9rem" }}
-                          className="text-danger fw-bold"
-                        >
-                          ₹{Number(product.discount_price).toLocaleString()}
-                        </div>
-                      </>
-                    ) : (
-                      <div
-                        style={{ fontSize: "0.9rem" }}
-                        className="text-success fw-bold"
+              return (
+                <div className="col-6 col-md-3 mb-3" key={product.id}>
+                  <Card
+                    className="product-card h-100"
+                    onClick={() => navigate(`/productdetails/${product.id}`)}
+                  >
+                    <Card.Img
+                      variant="top"
+                      src={imageUrl}
+                      alt={product.title}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openModal(imageUrl);
+                      }}
+                      className="img-fluid product-img"
+                      onError={(e) =>
+                        (e.target.src = "https://via.placeholder.com/150")
+                      }
+                    />
+                    <Card.Body className="p-2">
+                      <Card.Title
+                        className="product-title"
+                        title={product.title}
                       >
-                        ₹{Number(product.price).toLocaleString()}
-                      </div>
-                    )}
-                  </Card.Body>
-
-                  <Card.Footer className="d-flex justify-content-between px-2 py-1 bg-white border-0">
-                    <Button
-                      size="sm"
-                      variant="success"
-                      className="w-50 me-1 d-flex justify-content-center align-items-center"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        addItemToCart(product);
-                      }}
-                    >
-                      <MdShoppingCart size={14} className="me-1" />
-                      <span className="d-none d-sm-inline">Cart</span>
-                    </Button>
-
-                    <Button
-                      size="sm"
-                      variant="primary"
-                      className="w-50 d-flex justify-content-center align-items-center"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(`/productdetails/${product.id}`);
-                      }}
-                    >
-                      <FaCreditCard size={10} className="me-1" />
-                      <span className="d-none d-sm-inline">View</span>
-                    </Button>
-                  </Card.Footer>
-                </Card>
-              </div>
-            );
-          })}
-        </div>
-      ) : (
-        <h3 className="text-center">No products found for your search.</h3>
-      )}
+                        {product.title}
+                      </Card.Title>
+                      {product.discount_price ? (
+                        <>
+                          <div className="text-muted small">
+                            <del>₹{Number(product.price).toLocaleString()}</del>
+                          </div>
+                          <div className="text-danger product-price">
+                            ₹{Number(product.discount_price).toLocaleString()}
+                          </div>
+                        </>
+                      ) : (
+                        <div className="text-success product-price">
+                          ₹{Number(product.price).toLocaleString()}
+                        </div>
+                      )}
+                    </Card.Body>
+                    <Card.Footer className="px-2 py-1 d-flex justify-content-center gap-2">
+                      <Button
+                        size="sm"
+                        variant="success"
+                        className="flex-fill text-nowrap"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          addItemToCart(product);
+                        }}
+                      >
+                        Add Cart
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="primary"
+                        className="flex-fill text-nowrap"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/productdetails/${product.id}`);
+                        }}
+                      >
+                        Buy Now
+                      </Button>
+                    </Card.Footer>
+                  </Card>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <h5 className="text-center mt-4">No products found.</h5>
+        )}
+      </div>
 
       {error && (
         <div className="alert alert-danger mt-3 text-center" role="alert">
@@ -275,31 +249,24 @@ const ProductList = () => {
         </div>
       )}
 
-      <Modal
-        show={showModal}
-        onHide={closeModal}
-        size="lg"
-        centered
-        aria-labelledby="example-modal-sizes-title-lg"
-      >
+      {/* Image Modal */}
+      <Modal show={showModal} onHide={closeModal} size="lg" centered>
         <Modal.Header closeButton>
-          <Modal.Title id="example-modal-sizes-title-lg">
-            Product Image
-          </Modal.Title>
+          <Modal.Title>Product Image</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <img
-            src={selectedImage}
-            alt="Full Size"
-            style={{
-              width: "100%",
-              height: "auto",
-              maxHeight: "80vh",
-              objectFit: "contain",
-            }}
-          />
+          <img src={selectedImage} alt="Product" className="img-fluid" />
         </Modal.Body>
       </Modal>
+
+      {/* Floating Cart Button */}
+      <Button
+        variant="success"
+        className="fab-cart"
+        onClick={() => navigate("/cartlist")}
+      >
+        <MdShoppingCart size={24} />
+      </Button>
     </div>
   );
 };

@@ -20,7 +20,7 @@ const CartList = () => {
   };
 
   const handleBackToProduct = (productId) => {
-    navigate(`/product/${productId}`); // Navigate to the individual product page
+    navigate("/"); // Navigate to the individual product page
   };
 
   if (!Array.isArray(cartProduct)) return <p>Loading...</p>;
