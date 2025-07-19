@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import logo from "../assets/logo.png";
 import {
   Navbar,
   Nav,
@@ -11,9 +10,11 @@ import {
 } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { MdShoppingCart, MdPerson } from "react-icons/md";
+import logo from "../assets/logo.png"; // Adjust path if needed
 
 function NavBar() {
   const navigate = useNavigate();
+
   const [user, setUser] = useState(null);
   const [cartCount, setCartCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
@@ -22,16 +23,10 @@ function NavBar() {
     // Load user info from localStorage on mount
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser);
-      } catch (error) {
-        console.error("Error parsing user data from localStorage:", error);
-        localStorage.removeItem("user");
-        setUser(null);
-      }
+      setUser(JSON.parse(storedUser));
     }
-    // Load cart count from localStorage or Redux here
+
+    // Load cart items count
     const storedCart = localStorage.getItem("cartItems");
     if (storedCart) {
       try {
@@ -41,6 +36,27 @@ function NavBar() {
         setCartCount(0);
       }
     }
+
+    // Listen for changes in localStorage (e.g. login/logout)
+    const onStorageChange = () => {
+      const updatedUser = localStorage.getItem("user");
+      setUser(updatedUser ? JSON.parse(updatedUser) : null);
+
+      const updatedCart = localStorage.getItem("cartItems");
+      if (updatedCart) {
+        try {
+          const parsedCart = JSON.parse(updatedCart);
+          setCartCount(parsedCart.length);
+        } catch {
+          setCartCount(0);
+        }
+      } else {
+        setCartCount(0);
+      }
+    };
+
+    window.addEventListener("storage", onStorageChange);
+    return () => window.removeEventListener("storage", onStorageChange);
   }, []);
 
   const handleLogout = () => {
@@ -49,13 +65,11 @@ function NavBar() {
     navigate("/login");
   };
 
-  // Handle search form submit
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchTerm.trim()) {
-      // Navigate to the products page with the search term as a query parameter
       navigate(`/products?search=${encodeURIComponent(searchTerm.trim())}`);
-      setSearchTerm(""); // Clear the search bar after submitting
+      setSearchTerm("");
     }
   };
 
@@ -70,6 +84,11 @@ function NavBar() {
       <Container fluid>
         <Navbar.Brand as={Link} to="/" className="d-flex align-items-center">
           <img src={logo} alt="ShopSmart" height={32} className="me-2" />
+          <span
+            style={{ fontWeight: "700", fontSize: "1.25rem", color: "white" }}
+          >
+            ShopSmart
+          </span>
         </Navbar.Brand>
 
         <Navbar.Toggle aria-controls="navbarScroll" />
@@ -90,7 +109,6 @@ function NavBar() {
             </Nav.Link>
           </Nav>
 
-          {/* Search Bar */}
           <Form
             className="d-flex align-items-center flex-grow-1 me-3"
             onSubmit={handleSearch}
@@ -109,7 +127,6 @@ function NavBar() {
             </Button>
           </Form>
 
-          {/* Cart Button with Badge */}
           <Button
             variant="light"
             className="position-relative me-3"
@@ -129,7 +146,6 @@ function NavBar() {
             <span className="ms-1">Cart</span>
           </Button>
 
-          {/* User Dropdown */}
           {user ? (
             <NavDropdown
               title={
@@ -146,7 +162,7 @@ function NavBar() {
                   ) : (
                     <MdPerson size={30} className="me-2" />
                   )}
-                  {user.name}
+                  {user.name || user.email}
                 </span>
               }
               id="user-nav-dropdown"
@@ -176,7 +192,6 @@ function NavBar() {
         </Navbar.Collapse>
       </Container>
 
-      {/* Optional: Add some custom CSS */}
       <style type="text/css">{`
         .navbar-dark .navbar-nav .nav-link {
           color: white;
