@@ -117,21 +117,27 @@
 
 import { Button, Paper, TextField, Typography } from "@mui/material";
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 
-export default function SignUp() {
+export default function RegisterAndVerify() {
   const [step, setStep] = useState("email"); // 'email' | 'otp' | 'done'
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
 
+  // Simple email validation regex
   const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
+  // Step 1: Request OTP
   const handleSendOtp = async (e) => {
     e.preventDefault();
-    if (!email) return alert("Please enter your email");
-    if (!isValidEmail(email)) return alert("Please enter a valid email");
+    if (!email) {
+      alert("Please enter your email");
+      return;
+    }
+    if (!isValidEmail(email)) {
+      alert("Please enter a valid email");
+      return;
+    }
 
     setLoading(true);
     try {
@@ -158,11 +164,17 @@ export default function SignUp() {
     }
   };
 
+  // Step 2: Verify OTP
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
-    if (!otp) return alert("Please enter OTP");
-    if (otp.length !== 6 || !/^\d+$/.test(otp))
-      return alert("OTP must be 6 digits");
+    if (!otp) {
+      alert("Please enter OTP");
+      return;
+    }
+    if (otp.length !== 6 || !/^\d+$/.test(otp)) {
+      alert("OTP must be 6 digits");
+      return;
+    }
 
     setLoading(true);
     try {
@@ -181,13 +193,10 @@ export default function SignUp() {
         // Save user info in localStorage
         localStorage.setItem(
           "user",
-          JSON.stringify({ name: email, email: email, avatar: "" })
+          JSON.stringify({ name: email, email: email, avatar: "" }) // avatar empty for now
         );
 
-        // Redirect to products page
-        setTimeout(() => {
-          navigate("/products");
-        }, 1000);
+        setStep("done");
       } else {
         const err = await res.json();
         alert("Verification failed: " + (err.detail || JSON.stringify(err)));
@@ -199,6 +208,21 @@ export default function SignUp() {
     }
   };
 
+  // Step 3: Done message
+  if (step === "done") {
+    return (
+      <Paper style={{ maxWidth: 400, margin: "20px auto", padding: 20 }}>
+        <Typography variant="h5" textAlign="center" gutterBottom>
+          Success!
+        </Typography>
+        <Typography textAlign="center">
+          You are now registered and logged in.
+        </Typography>
+      </Paper>
+    );
+  }
+
+  // Step 1: Email input form
   if (step === "email") {
     return (
       <Paper
@@ -229,6 +253,7 @@ export default function SignUp() {
     );
   }
 
+  // Step 2: OTP input form
   if (step === "otp") {
     return (
       <Paper
@@ -264,5 +289,5 @@ export default function SignUp() {
     );
   }
 
-  return null;
+  return null; // fallback
 }
