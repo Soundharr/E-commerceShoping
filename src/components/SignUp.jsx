@@ -116,18 +116,18 @@
 // export default SignUp;
 
 import { Button, Paper, TextField, Typography } from "@mui/material";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function RegisterAndVerify() {
   const [step, setStep] = useState("email"); // 'email' | 'otp' | 'done'
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  // Simple email validation regex
   const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-  // Step 1: Request OTP
   const handleSendOtp = async (e) => {
     e.preventDefault();
     if (!email) {
@@ -164,7 +164,6 @@ export default function RegisterAndVerify() {
     }
   };
 
-  // Step 2: Verify OTP
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
     if (!otp) {
@@ -193,7 +192,7 @@ export default function RegisterAndVerify() {
         // Save user info in localStorage
         localStorage.setItem(
           "user",
-          JSON.stringify({ name: email, email: email, avatar: "" }) // avatar empty for now
+          JSON.stringify({ name: email, email: email, avatar: "" })
         );
 
         setStep("done");
@@ -208,7 +207,16 @@ export default function RegisterAndVerify() {
     }
   };
 
-  // Step 3: Done message
+  // Redirect to /products after 2 seconds on success
+  useEffect(() => {
+    if (step === "done") {
+      const timer = setTimeout(() => {
+        navigate("/products");
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [step, navigate]);
+
   if (step === "done") {
     return (
       <Paper style={{ maxWidth: 400, margin: "20px auto", padding: 20 }}>
@@ -222,7 +230,6 @@ export default function RegisterAndVerify() {
     );
   }
 
-  // Step 1: Email input form
   if (step === "email") {
     return (
       <Paper
@@ -253,7 +260,6 @@ export default function RegisterAndVerify() {
     );
   }
 
-  // Step 2: OTP input form
   if (step === "otp") {
     return (
       <Paper
@@ -289,5 +295,5 @@ export default function RegisterAndVerify() {
     );
   }
 
-  return null; // fallback
+  return null;
 }
