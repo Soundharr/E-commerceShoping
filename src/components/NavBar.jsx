@@ -177,7 +177,12 @@ function NavBar() {
           <Button
             variant="light"
             className="position-relative me-3"
-            onClick={() => navigate("/cartlist")}
+            onClick={() => {
+              navigate("/cartlist");
+              if (window.innerWidth <= 768) {
+                setExpanded(false); // Close navbar when clicking cart on mobile
+              }
+            }}
             style={{
               display: "flex",
               alignItems: "center",
@@ -233,6 +238,7 @@ function NavBar() {
                 to="/signup"
                 className="text-light"
                 style={{ marginRight: "0.5rem" }}
+                onClick={() => setExpanded(false)} // Close navbar on Signup click
               >
                 Signup
               </Nav.Link>
@@ -241,6 +247,7 @@ function NavBar() {
                 to="/profile"
                 className="text-light"
                 style={{ marginRight: "0.5rem" }}
+                onClick={() => setExpanded(false)} // Close navbar on Profile click
               >
                 Profile
               </Nav.Link>
