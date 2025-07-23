@@ -10,18 +10,18 @@ import {
 } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { MdShoppingCart, MdPerson } from "react-icons/md";
-import logo from "../assets/logo.png"; // Adjust path if needed
+import logo from "/cashew.png"; // Adjust path if needed
 import axios from "axios"; // For fetching categories
 import debounce from "lodash/debounce"; // For debouncing the search input
 
 function NavBar() {
   const navigate = useNavigate();
-
   const [user, setUser] = useState(null);
   const [cartCount, setCartCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [expanded, setExpanded] = useState(false); // Track the navbar state for mobile
 
   useEffect(() => {
     // Load user info from localStorage on mount
@@ -44,7 +44,6 @@ function NavBar() {
     // Fetch categories
     const fetchCategories = async () => {
       try {
-        // const response = await axios.get  ("http://127.0.0.1:8000/categories/");  https://e-commerce-oagd.onrender.com
         const response = await axios.get(
           "https://e-commerce-oagd.onrender.com/categories/"
         );
@@ -91,49 +90,62 @@ function NavBar() {
     );
   }, 500); // 500ms debounce time
 
-  // Trigger handleSearchChange whenever searchTerm or selectedCategory changes
   useEffect(() => {
     handleSearchChange(searchTerm, selectedCategory);
   }, [searchTerm, selectedCategory]);
+
+  // Handle link click and close navbar on mobile
+  const handleNavLinkClick = (link) => {
+    navigate(link);
+    if (window.innerWidth <= 768) {
+      setExpanded(false); // Close navbar when clicking on a link on mobile
+    }
+  };
 
   return (
     <Navbar
       expand="lg"
       sticky="top"
       variant="dark"
-      style={{ backgroundColor: "#2874f0" }}
+      style={{ backgroundColor: "#A9D39E" }}
       className="shadow-sm"
+      expanded={expanded} // Control navbar expansion manually
     >
       <Container fluid>
         <Navbar.Brand as={Link} to="/" className="d-flex align-items-center">
-          <img src={logo} alt="ShopSmart" height={32} className="me-2" />
+          <img src={logo} alt="CashewFactory" height={60} className="me-2" />{" "}
+          {/* Adjusted the height */}
           <span
             style={{ fontWeight: "700", fontSize: "1.25rem", color: "white" }}
           >
-            ShopSmart
+            Cashew Factory
           </span>
         </Navbar.Brand>
 
-        <Navbar.Toggle aria-controls="navbarScroll" />
+        {/* Hamburger for mobile */}
+        <Navbar.Toggle
+          aria-controls="navbarScroll"
+          onClick={() => setExpanded(!expanded)} // Toggle navbar state
+        />
         <Navbar.Collapse id="navbarScroll">
           <Nav
             className="me-auto my-2 my-lg-0"
             navbarScroll
             style={{ maxHeight: "300px" }}
           >
-            <Nav.Link as={Link} to="/home">
+            <Nav.Link onClick={() => handleNavLinkClick("/home")}>
               Home
             </Nav.Link>
-            <Nav.Link as={Link} to="/">
+            <Nav.Link onClick={() => handleNavLinkClick("/")}>
               Products
             </Nav.Link>
-            <Nav.Link as={Link} to="/todoapp">
+            <Nav.Link onClick={() => handleNavLinkClick("/todoapp")}>
               TakeNotes
             </Nav.Link>
           </Nav>
 
-          <Form className="d-flex align-items-center flex-grow-1 me-3">
-            {/* Category Filter Dropdown */}
+          <div className="d-flex align-items-center flex-grow-1 me-3">
+            {/* Category Filter Dropdown for Mobile */}
             <Form.Control
               as="select"
               value={selectedCategory}
@@ -152,20 +164,26 @@ function NavBar() {
             {/* Search Input */}
             <Form.Control
               type="search"
-              placeholder="Search for products, brands and more"
+              placeholder="Search for products"
               aria-label="Search"
               className="me-2"
               style={{ minWidth: "150px" }}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-          </Form>
+          </div>
 
+          {/* Cart Icon */}
           <Button
             variant="light"
             className="position-relative me-3"
             onClick={() => navigate("/cartlist")}
-            style={{ display: "flex", alignItems: "center" }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "5px 10px",
+            }}
           >
             <MdShoppingCart size={24} />
             {cartCount > 0 && (
@@ -177,9 +195,9 @@ function NavBar() {
                 <span className="visually-hidden">items in cart</span>
               </span>
             )}
-            <span className="ms-1">Cart</span>
           </Button>
 
+          {/* User Dropdown */}
           {user ? (
             <NavDropdown
               title={
@@ -202,7 +220,7 @@ function NavBar() {
               id="user-nav-dropdown"
               align="end"
             >
-              <NavDropdown.Item as={Link} to="/profile">
+              <NavDropdown.Item onClick={() => handleNavLinkClick("/profile")}>
                 Profile
               </NavDropdown.Item>
               <NavDropdown.Divider />
@@ -248,6 +266,12 @@ function NavBar() {
     .btn-light:hover {
       background-color: rgba(255, 255, 255, 0.2) !important;
       color: white !important;
+    }
+
+    @media (max-width: 768px) {
+      .navbar-dark .navbar-nav .nav-link {
+        font-size: 0.9rem;
+      }
     }
   `}</style>
     </Navbar>

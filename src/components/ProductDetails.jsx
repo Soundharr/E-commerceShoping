@@ -60,7 +60,7 @@ const ProductDetails = () => {
   };
 
   return (
-    <div className="container mt-4">
+    <div className="container mt-4" style={{ backgroundColor: "#c8beb1" }}>
       <div
         className="p-4 rounded shadow-sm"
         style={{ backgroundColor: "#fff", border: "1px solid #ddd" }}

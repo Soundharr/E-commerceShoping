@@ -24,7 +24,7 @@ const Footer = () => {
   return (
     <footer
       style={{
-        backgroundColor: "#2874f0",
+        backgroundColor: "#A9D39E",
         color: "white",
         padding: "40px 0",
         position: "relative", // important for absolute positioning inside

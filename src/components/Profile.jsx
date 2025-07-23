@@ -48,7 +48,14 @@ const Profile = () => {
   };
 
   return (
-    <div className="container mt-5">
+    <div
+      className="container mt-5"
+      style={{
+        backgroundColor: "#c8beb1",
+        padding: "20px",
+        borderRadius: "8px",
+      }}
+    >
       <h2>Your Orders</h2>
 
       {loading ? (

@@ -151,7 +151,7 @@ const Order = () => {
   };
 
   return (
-    <div className="container mt-4">
+    <div className="container mt-4" style={{ backgroundColor: "#c8beb1" }}>
       <h3 className="mb-4 text-center">Confirm Your Order</h3>
 
       <div className="row">

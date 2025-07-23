@@ -46,6 +46,8 @@ const Home = () => {
         mt: 4,
         mb: 4,
         px: isSmDown ? 1 : 3, // less padding on mobile
+        backgroundColor: "#c8beb1", // Change the background color here
+        borderRadius: 2, // Optional: add rounded corners to the container
       }}
     >
       {/* Hero Banner */}
