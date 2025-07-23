@@ -11,6 +11,8 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import { MdShoppingCart, MdPerson } from "react-icons/md";
 import logo from "../assets/logo.png"; // Adjust path if needed
+import axios from "axios"; // For fetching categories
+import debounce from "lodash/debounce"; // For debouncing the search input
 
 function NavBar() {
   const navigate = useNavigate();
@@ -18,6 +20,8 @@ function NavBar() {
   const [user, setUser] = useState(null);
   const [cartCount, setCartCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
 
   useEffect(() => {
     // Load user info from localStorage on mount
@@ -36,6 +40,21 @@ function NavBar() {
         setCartCount(0);
       }
     }
+
+    // Fetch categories
+    const fetchCategories = async () => {
+      try {
+        // const response = await axios.get  ("http://127.0.0.1:8000/categories/");  https://e-commerce-oagd.onrender.com
+        const response = await axios.get(
+          "https://e-commerce-oagd.onrender.com/categories/"
+        );
+        setCategories(response.data);
+      } catch (err) {
+        console.error("Error fetching categories:", err);
+      }
+    };
+
+    fetchCategories();
 
     // Listen for changes in localStorage (e.g. login/logout)
     const onStorageChange = () => {
@@ -62,16 +81,20 @@ function NavBar() {
   const handleLogout = () => {
     localStorage.removeItem("user");
     setUser(null);
-    navigate("/login");
+    navigate("/signup");
   };
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (searchTerm.trim()) {
-      navigate(`/products?search=${encodeURIComponent(searchTerm.trim())}`);
-      setSearchTerm("");
-    }
-  };
+  // Search and category update handler
+  const handleSearchChange = debounce((search, category) => {
+    navigate(
+      `/?search=${encodeURIComponent(search)}&category=${encodeURIComponent(category)}`
+    );
+  }, 500); // 500ms debounce time
+
+  // Trigger handleSearchChange whenever searchTerm or selectedCategory changes
+  useEffect(() => {
+    handleSearchChange(searchTerm, selectedCategory);
+  }, [searchTerm, selectedCategory]);
 
   return (
     <Navbar
@@ -109,10 +132,24 @@ function NavBar() {
             </Nav.Link>
           </Nav>
 
-          <Form
-            className="d-flex align-items-center flex-grow-1 me-3"
-            onSubmit={handleSearch}
-          >
+          <Form className="d-flex align-items-center flex-grow-1 me-3">
+            {/* Category Filter Dropdown */}
+            <Form.Control
+              as="select"
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="me-2"
+              style={{ minWidth: "150px" }}
+            >
+              <option value="">All Categories</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.name}>
+                  {category.name}
+                </option>
+              ))}
+            </Form.Control>
+
+            {/* Search Input */}
             <Form.Control
               type="search"
               placeholder="Search for products, brands and more"
@@ -122,9 +159,6 @@ function NavBar() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <Button variant="light" size="sm" type="submit">
-              Search
-            </Button>
           </Form>
 
           <Button
@@ -184,8 +218,13 @@ function NavBar() {
               >
                 Signup
               </Nav.Link>
-              <Nav.Link as={Link} to="/login" className="text-light">
-                Login
+              <Nav.Link
+                as={Link}
+                to="/profile"
+                className="text-light"
+                style={{ marginRight: "0.5rem" }}
+              >
+                Profile
               </Nav.Link>
             </>
           )}
@@ -193,24 +232,24 @@ function NavBar() {
       </Container>
 
       <style type="text/css">{`
-        .navbar-dark .navbar-nav .nav-link {
-          color: white;
-          font-weight: 600;
-        }
-        .navbar-dark .navbar-nav .nav-link:hover,
-        .navbar-dark .navbar-nav .nav-link.active {
-          color: #ffe500;
-        }
-        .btn-light {
-          background-color: transparent !important;
-          color: white !important;
-          border: none !important;
-        }
-        .btn-light:hover {
-          background-color: rgba(255, 255, 255, 0.2) !important;
-          color: white !important;
-        }
-      `}</style>
+    .navbar-dark .navbar-nav .nav-link {
+      color: white;
+      font-weight: 600;
+    }
+    .navbar-dark .navbar-nav .nav-link:hover,
+    .navbar-dark .navbar-nav .nav-link.active {
+      color: #ffe500;
+    }
+    .btn-light {
+      background-color: transparent !important;
+      color: white !important;
+      border: none !important;
+    }
+    .btn-light:hover {
+      background-color: rgba(255, 255, 255, 0.2) !important;
+      color: white !important;
+    }
+  `}</style>
     </Navbar>
   );
 }

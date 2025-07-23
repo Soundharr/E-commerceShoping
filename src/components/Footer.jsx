@@ -9,6 +9,7 @@ import {
   FaShoppingCart,
   FaUserPlus,
 } from "react-icons/fa";
+import { Link } from "react-router-dom"; // Import Link from react-router-dom
 
 const Footer = () => {
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
@@ -37,14 +38,16 @@ const Footer = () => {
             <p>© {new Date().getFullYear()} All rights reserved.</p>
             <ul>
               <li>
-                <a href="/productcrud" className="footer-link">
+                {/* Use Link instead of a */}
+                <Link to="/productcrud" className="footer-link">
                   CRUD
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/addcategory" className="footer-link">
+                {/* Use Link instead of a */}
+                <Link to="/addcategory" className="footer-link">
                   CRUD CATEGORY
-                </a>
+                </Link>
               </li>
             </ul>
           </Col>
@@ -55,21 +58,24 @@ const Footer = () => {
             <ul className="list-unstyled">
               <li className="footer-item">
                 <FaBoxOpen className="footer-icon" />
-                <a href="/" className="footer-link">
+                {/* Use Link instead of a */}
+                <Link to="/" className="footer-link">
                   Products
-                </a>
+                </Link>
               </li>
               <li className="footer-item">
                 <FaShoppingCart className="footer-icon" />
-                <a href="/cartlist" className="footer-link">
+                {/* Use Link instead of a */}
+                <Link to="/cartlist" className="footer-link">
                   Cart
-                </a>
+                </Link>
               </li>
               <li className="footer-item">
                 <FaUserPlus className="footer-icon" />
-                <a href="/signup" className="footer-link">
-                  Signup
-                </a>
+                {/* Use Link instead of a */}
+                <Link to="/profile" className="footer-link">
+                  Profile
+                </Link>
               </li>
             </ul>
           </Col>

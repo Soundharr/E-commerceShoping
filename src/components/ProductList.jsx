@@ -27,7 +27,8 @@ const ProductList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
 
-  const baseUrl = "https://e-commerce-oagd.onrender.com/products/";
+  const baseUrl = "https://e-commerce-oagd.onrender.com/products/"; //http://127.0.0.1:8000
+  // const baseUrl = "http://127.0.0.1:8000/products/"; //http://127.0.0.1:8000
 
   // Fetch products
   useEffect(() => {
@@ -52,6 +53,7 @@ const ProductList = () => {
       try {
         const response = await axios.get(
           "https://e-commerce-oagd.onrender.com/categories/"
+          // "http://127.0.0.1:8000/categories/" //http://127.0.0.1:8000
         );
         setCategories(response.data);
       } catch (err) {

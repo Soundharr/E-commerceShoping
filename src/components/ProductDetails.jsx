@@ -17,6 +17,7 @@ const ProductDetails = () => {
   useEffect(() => {
     axios
       .get(`https://e-commerce-oagd.onrender.com/products/${id}`)
+      // .get(`http://127.0.0.1:8000/products/${id}`) //http://127.0.0.1:8000
       .then((res) => setProduct(res.data))
       .catch((err) => console.error(err));
   }, [id]);

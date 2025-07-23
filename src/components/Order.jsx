@@ -1,20 +1,22 @@
 import React, { useState } from "react";
-import { useLocation, useParams, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { Modal, Card } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
+import { useAuth } from "../hooks/useAuth"; // Now it works since we have the useAuth hook
 
 const Order = () => {
   const { id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth(); // Using the useAuth hook
+
   const product = location.state?.product;
 
   const [formData, setFormData] = useState({
     first_name: "",
     last_name: "",
-    email: "",
     mobile: "",
     door_no: "",
     area: "",
@@ -26,26 +28,27 @@ const Order = () => {
 
   const [showModal, setShowModal] = useState(false);
   const [modalImage, setModalImage] = useState("");
+  const [loading, setLoading] = useState(false); // Add loading state
 
+  // If product is not found, display an error message
   if (!product) {
     return (
       <div className="container mt-5 text-center">
         <h4>Product not found!</h4>
-        <button
-          className="btn btn-primary mt-3"
-          onClick={() => navigate("/products")}
-        >
+        <button className="btn btn-primary mt-3" onClick={() => navigate("/")}>
           Back to Products
         </button>
       </div>
     );
   }
 
+  // Open modal for product image preview
   const openModal = (imageUrl) => {
     setModalImage(imageUrl);
     setShowModal(true);
   };
 
+  // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -54,8 +57,28 @@ const Order = () => {
     }));
   };
 
+  // Handle form submission for order
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // If user is not logged in, show a popup and exit early
+    if (!isAuthenticated) {
+      Swal.fire({
+        title: "Please Sign Up",
+        html: `To place an order, you must <a href="/signup" class="text-primary fw-bold">Sign Up</a> or <a href="/signup" class="text-success fw-bold">Log In</a>.`,
+        icon: "info",
+        showCancelButton: true,
+        confirmButtonText: "Go to Sign Up",
+        cancelButtonText: "Cancel",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          navigate("/signup");
+        }
+      });
+      return;
+    }
+
+    setLoading(true); // Start loading
 
     try {
       const total_amount = product.discount_price
@@ -64,35 +87,66 @@ const Order = () => {
 
       const payload = {
         ...formData,
-        product: product.id,
-        total_amount,
+        items: [
+          {
+            product: product.id,
+            quantity: formData.quantity,
+          },
+        ],
       };
 
-      // Post order to backend API — update URL as needed
-      await axios.post(
-        "https://e-commerce-oagd.onrender.com/shop/address/",
-        payload
+      // Get JWT token
+      const token = localStorage.getItem("token") || user?.token;
+
+      const response = await axios.post(
+        // "http://127.0.0.1:8000/shop/orders/", https://e-commerce-oagd.onrender.com
+        "https://e-commerce-oagd.onrender.com/shop/orders/",
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
       );
 
-      // Removed SMS sending code here
+      setLoading(false); // Stop loading
 
-      // Success alert and navigate after user clicks "Okay"
       Swal.fire({
         title: "Order Confirmed!",
         text: `Your order for ${product.title} has been successfully placed. Total: ₹${total_amount}.`,
         icon: "success",
         confirmButtonText: "Okay",
       }).then(() => {
-        navigate("/products");
+        navigate("/");
       });
     } catch (err) {
+      setLoading(false); // Stop loading
       console.error(err);
-      Swal.fire({
-        title: "Error!",
-        text: "Failed to place your order. Please try again later.",
-        icon: "error",
-        confirmButtonText: "Retry",
-      });
+
+      // Handle 401 (Unauthorized) errors specifically
+      if (err.response && err.response.status === 401) {
+        Swal.fire({
+          title: "Unauthorized!",
+          html: `You must <a href="/signup" class="text-success fw-bold">Log In</a> to place an order.`,
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText: "Go to Login",
+          cancelButtonText: "Cancel",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            navigate("/signup");
+          }
+        });
+      } else {
+        // Generic error fallback
+        Swal.fire({
+          title: "Error!",
+          text: "Failed to place your order. Please try again later.",
+          icon: "error",
+          confirmButtonText: "Retry",
+        });
+      }
     }
   };
 
@@ -152,6 +206,7 @@ const Order = () => {
         <div className="col-md-7">
           <form onSubmit={handleSubmit}>
             <div className="row g-3">
+              {/* Form Fields */}
               <div className="col-md-6">
                 <input
                   name="first_name"
@@ -174,41 +229,30 @@ const Order = () => {
               </div>
               <div className="col-md-6">
                 <input
-                  name="email"
-                  type="email"
+                  name="mobile"
                   className="form-control"
-                  placeholder="Email"
-                  value={formData.email}
+                  placeholder="Mobile Number"
+                  value={formData.mobile}
+                  onChange={handleChange}
+                  type="tel"
+                  required
+                />
+              </div>
+              <div className="col-md-6">
+                <input
+                  name="door_no"
+                  className="form-control"
+                  placeholder="Door No"
+                  value={formData.door_no}
                   onChange={handleChange}
                   required
                 />
               </div>
               <div className="col-md-6">
                 <input
-                  name="mobile"
-                  type="number"
-                  className="form-control"
-                  placeholder="Mobile Number"
-                  value={formData.mobile}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-              <div className="col-md-4">
-                <input
-                  name="door_no"
-                  className="form-control"
-                  placeholder="Door No."
-                  value={formData.door_no}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-              <div className="col-md-8">
-                <input
                   name="area"
                   className="form-control"
-                  placeholder="Area / Street"
+                  placeholder="Area"
                   value={formData.area}
                   onChange={handleChange}
                   required
@@ -224,7 +268,7 @@ const Order = () => {
                   required
                 />
               </div>
-              <div className="col-md-4">
+              <div className="col-md-6">
                 <input
                   name="state"
                   className="form-control"
@@ -234,71 +278,28 @@ const Order = () => {
                   required
                 />
               </div>
-              <div className="col-md-2">
+              <div className="col-md-6">
                 <input
                   name="pincode"
-                  type="number"
                   className="form-control"
                   placeholder="Pincode"
                   value={formData.pincode}
                   onChange={handleChange}
+                  type="number"
                   required
                 />
               </div>
 
-              <div className="col-md-3 d-flex align-items-center">
-                <button
-                  type="button"
-                  className="btn btn-outline-secondary"
-                  onClick={() =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      quantity: Math.max(1, prev.quantity - 1),
-                    }))
-                  }
-                  disabled={formData.quantity <= 1}
-                >
-                  &minus;
-                </button>
-
+              <div className="col-md-3">
                 <input
-                  name="quantity"
                   type="number"
+                  className="form-control"
+                  value={formData.quantity}
+                  onChange={handleChange}
                   min="1"
                   max="10"
-                  className="form-control text-center mx-2"
-                  placeholder="Quantity"
-                  value={formData.quantity}
-                  onChange={(e) => {
-                    let val = Number(e.target.value);
-                    if (val < 1) val = 1;
-                    else if (val > 10) val = 10;
-                    setFormData((prev) => ({ ...prev, quantity: val }));
-                  }}
                   required
-                  style={{ maxWidth: "60px" }}
                 />
-
-                <button
-                  type="button"
-                  className="btn btn-outline-secondary"
-                  onClick={() => {
-                    if (formData.quantity >= 10) {
-                      Swal.fire({
-                        icon: "warning",
-                        title: "Maximum quantity reached",
-                        text: "You cannot add more than 10 items.",
-                      });
-                      return;
-                    }
-                    setFormData((prev) => ({
-                      ...prev,
-                      quantity: prev.quantity + 1,
-                    }));
-                  }}
-                >
-                  &#43;
-                </button>
               </div>
 
               <div className="col-md-3">
@@ -312,8 +313,23 @@ const Order = () => {
               </div>
             </div>
 
-            <button type="submit" className="btn btn-danger mt-4 px-4">
-              Confirm Order
+            <button
+              type="submit"
+              className="btn btn-danger mt-4 px-4"
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <span
+                    className="spinner-border spinner-border-sm"
+                    role="status"
+                    aria-hidden="true"
+                  ></span>{" "}
+                  Processing...
+                </>
+              ) : (
+                "Confirm Order"
+              )}
             </button>
           </form>
         </div>
