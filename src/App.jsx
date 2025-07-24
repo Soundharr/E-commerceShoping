@@ -91,6 +91,7 @@ import UpdateCategory from "./components/UpdateCategory";
 import ProductCrud from "./components/ProductCrud";
 import Order from "./components/Order";
 import Profile from "./components/Profile";
+import EnquiryForm from "./components/EnquiryForm";
 
 // 👇 Create UserContext
 export const UserContext = createContext();
@@ -137,6 +138,7 @@ function App() {
             <Route path="/updatecategory/:id" element={<UpdateCategory />} />
             <Route path="/productdetails/:id" element={<ProductDetails />} />
             <Route path="/order/:id" element={<Order />} />
+            <Route path="/enquiry" element={<EnquiryForm />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <Footer />

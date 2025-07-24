@@ -34,8 +34,9 @@ const Footer = () => {
         <Row className="text-start">
           {/* Brand Section */}
           <Col md={4} className="mb-4 mb-md-0">
-            <h5 className="mb-3">ShopSmart</h5>
+            <h5 className="mb-3">Premium Cashew Co.</h5>
             <p>© {new Date().getFullYear()} All rights reserved.</p>
+            <p className="small">Your trusted partner for premium quality cashews</p>
             <ul>
               <li>
                 {/* Use Link instead of a */}
@@ -77,6 +78,13 @@ const Footer = () => {
                   Profile
                 </Link>
               </li>
+              <li className="footer-item">
+                <FaBoxOpen className="footer-icon" />
+                {/* Use Link instead of a */}
+                <Link to="/enquiry" className="footer-link">
+                  Business Enquiry
+                </Link>
+              </li>
             </ul>
           </Col>
 
@@ -102,24 +110,20 @@ const Footer = () => {
             </p>
             <p className="footer-item">
               <FaInstagram className="footer-icon" />
+              <span className="footer-link">
+                Premium Cashew Co.<br />
+                Tamil Nadu, India
+              </span>
+            </p>
+            <p className="footer-item">
+              <FaInstagram className="footer-icon" />
               <a
                 href="https://www.instagram.com/itz_me_soundhar/"
                 className="footer-link"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                itz_me_soundhar
-              </a>
-            </p>
-            <p className="footer-item">
-              <FaLinkedin className="footer-icon" />
-              <a
-                href="https://www.linkedin.com/in/soundharrajan-aaba7791b0"
-                className="footer-link"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                SOUNDHARRAJAN A
+                Follow Us
               </a>
             </p>
           </Col>
