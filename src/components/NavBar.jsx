@@ -118,7 +118,7 @@ function NavBar() {
           <span
             style={{ fontWeight: "700", fontSize: "1.25rem", color: "white" }}
           >
-            Cashew Factory
+            Premium Cashew Co.
           </span>
         </Navbar.Brand>
 
@@ -141,6 +141,12 @@ function NavBar() {
             </Nav.Link>
             <Nav.Link onClick={() => handleNavLinkClick("/enquiry")}>
               Enquiry
+<<<<<<< HEAD
+=======
+            </Nav.Link>
+            <Nav.Link onClick={() => handleNavLinkClick("/todoapp")}>
+              TakeNotes
+>>>>>>> bfcbb15bd6b7b8e440bbebc2f72471f40682847e
             </Nav.Link>
             {/* <Nav.Link onClick={() => handleNavLinkClick("/todoapp")}>
               TakeNotes

@@ -7,6 +7,8 @@ import {
   CircularProgress,
   useTheme,
   useMediaQuery,
+  Button,
+  Grid,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
@@ -48,8 +50,54 @@ const Home = () => {
         px: isSmDown ? 1 : 3, // less padding on mobile
         backgroundColor: "#c8beb1", // Change the background color here
         borderRadius: 2, // Optional: add rounded corners to the container
+        minHeight: "100vh",
       }}
     >
+      {/* Professional Header */}
+      <Box sx={{ textAlign: "center", mb: 4 }}>
+        <Typography variant={isSmDown ? "h4" : "h3"} gutterBottom sx={{ fontWeight: "bold", color: "#2c3e50" }}>
+          Premium Cashew Co.
+        </Typography>
+        <Typography variant={isSmDown ? "body1" : "h6"} sx={{ color: "#7f8c8d", mb: 3 }}>
+          Your Trusted Partner for Premium Quality Cashews
+        </Typography>
+        <Grid container spacing={2} justifyContent="center">
+          <Grid item>
+            <Button
+              variant="contained"
+              size="large"
+              onClick={() => navigate("/enquiry")}
+              sx={{
+                backgroundColor: "#27ae60",
+                "&:hover": { backgroundColor: "#229954" },
+                px: 4,
+                py: 1.5,
+                borderRadius: "25px",
+                fontWeight: "bold"
+              }}
+            >
+              Retail Enquiry
+            </Button>
+          </Grid>
+          <Grid item>
+            <Button
+              variant="contained"
+              size="large"
+              onClick={() => navigate("/enquiry")}
+              sx={{
+                backgroundColor: "#3498db",
+                "&:hover": { backgroundColor: "#2980b9" },
+                px: 4,
+                py: 1.5,
+                borderRadius: "25px",
+                fontWeight: "bold"
+              }}
+            >
+              Wholesale Enquiry
+            </Button>
+          </Grid>
+        </Grid>
+      </Box>
       {/* Hero Banner */}
       <Paper
         elevation={3}
@@ -143,6 +191,45 @@ const Home = () => {
             ))}
           </Box>
         )}
+      </Box>
+
+      {/* Professional Services Section */}
+      <Box sx={{ mt: 6, mb: 4 }}>
+        <Typography variant={isSmDown ? "h6" : "h5"} gutterBottom sx={{ textAlign: "center", mb: 4 }}>
+          Our Services
+        </Typography>
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={4}>
+            <Paper elevation={3} sx={{ p: 3, textAlign: "center", height: "100%" }}>
+              <Typography variant="h6" gutterBottom sx={{ color: "#27ae60", fontWeight: "bold" }}>
+                Retail Sales
+              </Typography>
+              <Typography variant="body2" sx={{ color: "#7f8c8d" }}>
+                Premium quality cashews for individual customers and small businesses
+              </Typography>
+            </Paper>
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <Paper elevation={3} sx={{ p: 3, textAlign: "center", height: "100%" }}>
+              <Typography variant="h6" gutterBottom sx={{ color: "#3498db", fontWeight: "bold" }}>
+                Wholesale Distribution
+              </Typography>
+              <Typography variant="body2" sx={{ color: "#7f8c8d" }}>
+                Bulk orders with competitive pricing for retailers and distributors
+              </Typography>
+            </Paper>
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <Paper elevation={3} sx={{ p: 3, textAlign: "center", height: "100%" }}>
+              <Typography variant="h6" gutterBottom sx={{ color: "#e74c3c", fontWeight: "bold" }}>
+                Custom Processing
+              </Typography>
+              <Typography variant="body2" sx={{ color: "#7f8c8d" }}>
+                Tailored processing solutions for specific business requirements
+              </Typography>
+            </Paper>
+          </Grid>
+        </Grid>
       </Box>
     </Container>
   );

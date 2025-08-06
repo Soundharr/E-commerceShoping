@@ -490,6 +490,11 @@ const ProductList = () => {
                           ₹{Number(product.price).toLocaleString()}
                         </div>
                       )}
+                      <div className="mt-2">
+                        <small className="text-muted">
+                          {product.stock > 10 ? "In Stock" : product.stock > 0 ? "Limited Stock" : "Out of Stock"}
+                        </small>
+                      </div>
                     </Card.Body>
                     <Card.Footer className="px-2 py-1 d-flex justify-content-center gap-2">
                       <Button
@@ -505,14 +510,14 @@ const ProductList = () => {
                       </Button>
                       <Button
                         size="sm"
-                        variant="primary"
+                        variant="outline-primary"
                         className="flex-fill text-nowrap"
                         onClick={(e) => {
                           e.stopPropagation();
-                          navigate(`/productdetails/${product.id}`);
+                          navigate("/enquiry");
                         }}
                       >
-                        Buy Now
+                        Enquiry
                       </Button>
                     </Card.Footer>
                   </Card>
