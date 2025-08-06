@@ -92,10 +92,7 @@ import ProductCrud from "./components/ProductCrud";
 import Order from "./components/Order";
 import Profile from "./components/Profile";
 import EnquiryForm from "./components/EnquiryForm";
-<<<<<<< HEAD
 import EnquiryDetails from "./components/EnquiryDetails";
-=======
->>>>>>> bfcbb15bd6b7b8e440bbebc2f72471f40682847e
 
 // 👇 Create UserContext
 export const UserContext = createContext();
@@ -143,10 +140,7 @@ function App() {
             <Route path="/productdetails/:id" element={<ProductDetails />} />
             <Route path="/order/:id" element={<Order />} />
             <Route path="/enquiry" element={<EnquiryForm />} />
-<<<<<<< HEAD
             <Route path="/enquirydetails" element={<EnquiryDetails />} />
-=======
->>>>>>> bfcbb15bd6b7b8e440bbebc2f72471f40682847e
             <Route path="*" element={<NotFound />} />
           </Routes>
           <Footer />
