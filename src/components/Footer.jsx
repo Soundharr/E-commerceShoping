@@ -76,6 +76,9 @@ const Footer = () => {
                 <Link to="/profile" className="footer-link">
                   Profile
                 </Link>
+                <Link to="/enquirydetails" className="footer-link">
+                  Details{" "}
+                </Link>
               </li>
             </ul>
           </Col>

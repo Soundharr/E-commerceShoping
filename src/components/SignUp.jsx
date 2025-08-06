@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Paper, TextField, Button, Typography } from "@mui/material";
-import cashewImage from "../assets/cashew.jpg"; // Image import// Ensure correct path to your image
+import cashewImage from "../assets/cashew.jpg"; // Ensure the correct path to your image
 
 export default function RegisterAndVerify() {
   const [email, setEmail] = useState("");
@@ -26,33 +26,46 @@ export default function RegisterAndVerify() {
     <div
       style={{
         backgroundImage: `url(${cashewImage})`, // Set the image as background
-        backgroundSize: "cover", // Ensure the image covers the whole screen
+        backgroundSize: "cover", // Ensure the image covers the screen
         backgroundPosition: "center", // Center the image
         backgroundRepeat: "no-repeat", // Prevent image repetition
-        minHeight: "100vh", // Take the full height of the viewport
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center", // Center the form
+        minHeight: "170vh", // Ensure full height
+        position: "relative", // Keep positioning for the form
       }}
     >
-      <Paper
-        elevation={20}
+      {/* Form container */}
+      <form
+        onSubmit={handleSendOtp}
         style={{
-          maxWidth: 400,
+          position: "absolute", // Position the form absolutely
+          top: "10px", // 10px from the top
+          left: "10px", // 10px from the left
+          display: "flex",
+          flexDirection: "column", // Stack form elements vertically
+          gap: 20,
+          maxWidth: "90%", // Ensure form doesn't overflow on smaller screens
           padding: 20,
-          backgroundColor: "rgba(255, 255, 255, 0.8)", // Semi-transparent white background
+          margin: "0 auto", // Center form horizontally
         }}
       >
-        <Typography
-          variant="h5"
-          textAlign="center"
-          gutterBottom
-          sx={{ color: "#c8beb1" }} // Apply color using sx prop
+        <Paper
+          elevation={20}
+          style={{
+            backgroundColor: "rgba(255, 255, 255, 0.7)", // Semi-transparent background for the form
+            padding: 20,
+            display: "grid",
+            borderRadius: "8px", // Add rounded corners to the paper
+          }}
         >
-          Enter your email
-        </Typography>
+          <Typography
+            variant="h5"
+            textAlign="center"
+            gutterBottom
+            sx={{ color: "#040404ff" }} // Apply color using sx prop
+          >
+            Enter your email
+          </Typography>
 
-        <form onSubmit={handleSendOtp} style={{ display: "grid", gap: 20 }}>
           <TextField
             label="Email"
             type="email"
@@ -64,6 +77,7 @@ export default function RegisterAndVerify() {
             helperText={
               email !== "" && !isValidEmail(email) ? "Enter a valid email" : ""
             }
+            style={{ marginBottom: "20px" }} // Margin for input field
           />
           <Button
             variant="contained"
@@ -72,8 +86,8 @@ export default function RegisterAndVerify() {
           >
             {loading ? "Sending..." : "Send OTP"}
           </Button>
-        </form>
-      </Paper>
+        </Paper>
+      </form>
     </div>
   );
 }

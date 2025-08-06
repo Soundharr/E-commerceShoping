@@ -139,9 +139,12 @@ function NavBar() {
             <Nav.Link onClick={() => handleNavLinkClick("/")}>
               Products
             </Nav.Link>
-            <Nav.Link onClick={() => handleNavLinkClick("/todoapp")}>
-              TakeNotes
+            <Nav.Link onClick={() => handleNavLinkClick("/enquiry")}>
+              Enquiry
             </Nav.Link>
+            {/* <Nav.Link onClick={() => handleNavLinkClick("/todoapp")}>
+              TakeNotes
+            </Nav.Link> */}
           </Nav>
 
           <div className="d-flex align-items-center flex-grow-1 me-3">
