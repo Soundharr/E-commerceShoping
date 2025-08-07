@@ -476,6 +476,12 @@ const ProductList = () => {
                       >
                         {product.title}
                       </Card.Title>
+                      <Card.Title
+                        className="product-title"
+                        title={product.category.name}
+                      >
+                        Origin : {product.category.name}
+                      </Card.Title>
                       {product.discount_price ? (
                         <>
                           <div className="text-muted small">
@@ -492,7 +498,11 @@ const ProductList = () => {
                       )}
                       <div className="mt-2">
                         <small className="text-muted">
-                          {product.stock > 10 ? "In Stock" : product.stock > 0 ? "Limited Stock" : "Out of Stock"}
+                          {product.stock > 10
+                            ? "In Stock"
+                            : product.stock > 0
+                              ? "Limited Stock"
+                              : "Out of Stock"}
                         </small>
                       </div>
                     </Card.Body>
@@ -514,10 +524,10 @@ const ProductList = () => {
                         className="flex-fill text-nowrap"
                         onClick={(e) => {
                           e.stopPropagation();
-                          navigate("/enquiry");
+                          navigate(`/productdetails/${product.id}`);
                         }}
                       >
-                        Enquiry
+                        View
                       </Button>
                     </Card.Footer>
                   </Card>

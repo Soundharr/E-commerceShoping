@@ -34,9 +34,11 @@ const Footer = () => {
         <Row className="text-start">
           {/* Brand Section */}
           <Col md={4} className="mb-4 mb-md-0">
-            <h5 className="mb-3">Premium Cashew Co.</h5>
+            <h5 className="mb-3">Cashew Factory </h5>
             <p>© {new Date().getFullYear()} All rights reserved.</p>
-            <p className="small">Your trusted partner for premium quality cashews</p>
+            <p className="small">
+              Your trusted partner for premium quality cashews
+            </p>
             <ul>
               <li>
                 {/* Use Link instead of a */}
@@ -111,13 +113,13 @@ const Footer = () => {
                 soundharraj458@gmail.com
               </a>
             </p>
-            <p className="footer-item">
+            {/* <p className="footer-item">
               <FaInstagram className="footer-icon" />
               <span className="footer-link">
                 Premium Cashew Co.<br />
                 Tamil Nadu, India
               </span>
-            </p>
+            </p> */}
             <p className="footer-item">
               <FaInstagram className="footer-icon" />
               <a
@@ -126,7 +128,7 @@ const Footer = () => {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Follow Us
+                soundhar
               </a>
             </p>
           </Col>
