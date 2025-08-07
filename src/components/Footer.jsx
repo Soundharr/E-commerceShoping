@@ -10,7 +10,7 @@ import {
   FaUserPlus,
 } from "react-icons/fa";
 import { Link } from "react-router-dom"; // Import Link from react-router-dom
-
+import { GrUserAdmin } from "react-icons/gr";
 const Footer = () => {
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
 
@@ -39,20 +39,6 @@ const Footer = () => {
             <p className="small">
               Your trusted partner for premium quality cashews
             </p>
-            <ul>
-              <li>
-                {/* Use Link instead of a */}
-                <Link to="/productcrud" className="footer-link">
-                  CRUD
-                </Link>
-              </li>
-              <li>
-                {/* Use Link instead of a */}
-                <Link to="/addcategory" className="footer-link">
-                  CRUD CATEGORY
-                </Link>
-              </li>
-            </ul>
           </Col>
 
           {/* Quick Links */}
@@ -79,8 +65,12 @@ const Footer = () => {
                 <Link to="/profile" className="footer-link">
                   Profile
                 </Link>
-                <Link to="/enquirydetails" className="footer-link">
-                  Details{" "}
+              </li>
+              <li className="footer-item">
+                <GrUserAdmin className="footer-icon" />
+                {/* Use Link instead of a */}
+                <Link to="/admin" className="footer-link">
+                  Admin{" "}
                 </Link>
               </li>
               <li className="footer-item">

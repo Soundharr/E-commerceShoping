@@ -55,10 +55,17 @@ const Home = () => {
     >
       {/* Professional Header */}
       <Box sx={{ textAlign: "center", mb: 4 }}>
-        <Typography variant={isSmDown ? "h4" : "h3"} gutterBottom sx={{ fontWeight: "bold", color: "#2c3e50" }}>
-          Premium Cashew Co.
+        <Typography
+          variant={isSmDown ? "h4" : "h3"}
+          gutterBottom
+          sx={{ fontWeight: "bold", color: "#2c3e50" }}
+        >
+          Cashew Factroy
         </Typography>
-        <Typography variant={isSmDown ? "body1" : "h6"} sx={{ color: "#7f8c8d", mb: 3 }}>
+        <Typography
+          variant={isSmDown ? "body1" : "h6"}
+          sx={{ color: "#7f8c8d", mb: 3 }}
+        >
           Your Trusted Partner for Premium Quality Cashews
         </Typography>
         <Grid container spacing={2} justifyContent="center">
@@ -73,7 +80,7 @@ const Home = () => {
                 px: 4,
                 py: 1.5,
                 borderRadius: "25px",
-                fontWeight: "bold"
+                fontWeight: "bold",
               }}
             >
               Retail Enquiry
@@ -90,7 +97,7 @@ const Home = () => {
                 px: 4,
                 py: 1.5,
                 borderRadius: "25px",
-                fontWeight: "bold"
+                fontWeight: "bold",
               }}
             >
               Wholesale Enquiry
@@ -154,7 +161,7 @@ const Home = () => {
                 key={id}
                 elevation={4}
                 onClick={() =>
-                  navigate(`/products?category=${encodeURIComponent(name)}`)
+                  navigate(`/?search=&category=${encodeURIComponent(name)}`)
                 }
                 sx={{
                   width: isSmDown ? "60%" : "20%", // wider on mobile for easier tap
@@ -195,40 +202,60 @@ const Home = () => {
 
       {/* Professional Services Section */}
       <Box sx={{ mt: 6, mb: 4 }}>
-        <Typography variant={isSmDown ? "h6" : "h5"} gutterBottom sx={{ textAlign: "center", mb: 4 }}>
+        <Typography
+          variant={isSmDown ? "h6" : "h5"}
+          gutterBottom
+          sx={{ textAlign: "center", mb: 4 }}
+        >
           Our Services
         </Typography>
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={4}>
-            <Paper elevation={3} sx={{ p: 3, textAlign: "center", height: "100%" }}>
-              <Typography variant="h6" gutterBottom sx={{ color: "#27ae60", fontWeight: "bold" }}>
-                Retail Sales
-              </Typography>
-              <Typography variant="body2" sx={{ color: "#7f8c8d" }}>
-                Premium quality cashews for individual customers and small businesses
-              </Typography>
-            </Paper>
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <Paper elevation={3} sx={{ p: 3, textAlign: "center", height: "100%" }}>
-              <Typography variant="h6" gutterBottom sx={{ color: "#3498db", fontWeight: "bold" }}>
-                Wholesale Distribution
-              </Typography>
-              <Typography variant="body2" sx={{ color: "#7f8c8d" }}>
-                Bulk orders with competitive pricing for retailers and distributors
-              </Typography>
-            </Paper>
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <Paper elevation={3} sx={{ p: 3, textAlign: "center", height: "100%" }}>
-              <Typography variant="h6" gutterBottom sx={{ color: "#e74c3c", fontWeight: "bold" }}>
-                Custom Processing
-              </Typography>
-              <Typography variant="body2" sx={{ color: "#7f8c8d" }}>
-                Tailored processing solutions for specific business requirements
-              </Typography>
-            </Paper>
-          </Grid>
+
+        <Grid container spacing={3} alignItems="stretch">
+          {[
+            {
+              title: "Retail Sales",
+              color: "#27ae60",
+              description:
+                "Premium quality cashews for individual customers and small businesses.",
+            },
+            {
+              title: "Wholesale Distribution",
+              color: "#3498db",
+              description:
+                "Bulk orders with competitive pricing for retailers and distributors.",
+            },
+            {
+              title: "Custom Processing",
+              color: "#e74c3c",
+              description:
+                "Tailored processing solutions for specific business requirements.",
+            },
+          ].map((service, index) => (
+            <Grid item xs={12} sm={6} md={4} key={index}>
+              <Paper
+                elevation={3}
+                sx={{
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  p: 4,
+                  textAlign: "center",
+                }}
+              >
+                <Typography
+                  variant="h6"
+                  sx={{ color: service.color, fontWeight: "bold", mb: 1 }}
+                >
+                  {service.title}
+                </Typography>
+                <Typography variant="body2" sx={{ color: "#7f8c8d" }}>
+                  {service.description}
+                </Typography>
+              </Paper>
+            </Grid>
+          ))}
         </Grid>
       </Box>
     </Container>

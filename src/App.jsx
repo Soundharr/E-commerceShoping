@@ -93,6 +93,9 @@ import Order from "./components/Order";
 import Profile from "./components/Profile";
 import EnquiryForm from "./components/EnquiryForm";
 import EnquiryDetails from "./components/EnquiryDetails";
+import Admin from "./components/Admin";
+import AdminDashboard from "./components/AdminDashboard";
+import CrudCategory from "./components/CrudCategory";
 
 // 👇 Create UserContext
 export const UserContext = createContext();
@@ -141,6 +144,9 @@ function App() {
             <Route path="/order/:id" element={<Order />} />
             <Route path="/enquiry" element={<EnquiryForm />} />
             <Route path="/enquirydetails" element={<EnquiryDetails />} />
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/admin-dashboard" element={<AdminDashboard />} />
+            <Route path="/crudcategory" element={<CrudCategory />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <Footer />

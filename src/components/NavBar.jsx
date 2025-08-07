@@ -142,6 +142,9 @@ function NavBar() {
             <Nav.Link onClick={() => handleNavLinkClick("/enquiry")}>
               Enquiry
             </Nav.Link>
+            <Nav.Link onClick={() => handleNavLinkClick("/admin")}>
+              Admin
+            </Nav.Link>
             {/* <Nav.Link onClick={() => handleNavLinkClick("/todoapp")}>
               TakeNotes
             </Nav.Link> */}
