@@ -2,24 +2,24 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Card, Row, Col, Button, Spinner } from "react-bootstrap";
 import Swal from "sweetalert2";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
   const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true); // State for loading
-  const navigate = useNavigate(); // Initialize useNavigate
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+
     if (!token) {
       console.warn("No token found in localStorage");
       setLoading(false);
       return;
     }
 
-    // Fetching the orders of the current user
+    // Fetch the orders for the current user
     axios
-      // .get("http://127.0.0.1:8000/shop/orders/", {
       .get("https://e-commerce-oagd.onrender.com/shop/orders/", {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -27,14 +27,14 @@ const Profile = () => {
       })
       .then((res) => {
         setOrders(res.data);
-        setLoading(false); // Data is fetched, stop loading
+        setLoading(false);
       })
       .catch((err) => {
         console.error(
           "Failed to fetch orders:",
           err.response?.data || err.message
         );
-        setLoading(false); // Stop loading in case of error
+        setLoading(false);
         Swal.fire(
           "Error",
           "Failed to fetch your orders. Please try again later.",
@@ -43,8 +43,13 @@ const Profile = () => {
       });
   }, []);
 
+  // Navigate to product details page
   const handleViewProductDetails = (productId) => {
-    navigate(`/productdetails/${productId}`); // Navigate to product details page using the product ID
+    if (!productId) {
+      Swal.fire("Info", "Product details not available.", "info");
+      return;
+    }
+    navigate(`/productdetails/${productId}`);
   };
 
   return (
@@ -54,12 +59,16 @@ const Profile = () => {
         backgroundColor: "#c8beb1",
         padding: "20px",
         borderRadius: "8px",
+        minHeight: "80vh",
       }}
     >
-      <h2>Your Orders</h2>
+      <h2 className="mb-4">Your Orders</h2>
 
       {loading ? (
-        <div className="d-flex justify-content-center align-items-center">
+        <div
+          className="d-flex justify-content-center align-items-center"
+          style={{ height: "200px" }}
+        >
           <Spinner animation="border" variant="primary" />
         </div>
       ) : orders.length === 0 ? (
@@ -91,63 +100,64 @@ const Profile = () => {
 
                   <div>
                     <strong>Order Items:</strong>
-                    {order.items?.map((item) => {
-                      // Console log product details here
-                      console.log("Product Details:", item);
+                    {order.items?.length > 0 ? (
+                      order.items.map((item) => {
+                        // Determine product image URL or fallback
+                        const imageUrl =
+                          item.product_image_url || "/images/placeholder.jpg";
 
-                      // Determine product image URL (local placeholder fallback)
-                      const imageUrl = item.product_image_url
-                        ? item.product_image_url
-                        : "/images/placeholder.jpg"; // Local placeholder image
-
-                      return (
-                        <div key={item.id} className="d-flex mb-3">
-                          {/* Product Image */}
-                          <div
-                            className="me-3"
-                            style={{ width: "100px", height: "100px" }}
-                          >
-                            {/* Image with a fallback */}
-                            <img
-                              src={imageUrl}
-                              alt={item.product_title}
-                              className="img-fluid"
-                              style={{
-                                objectFit: "cover",
-                                width: "100%",
-                                height: "100%",
-                              }}
-                            />
-                          </div>
-                          <div>
-                            <p>
-                              <strong>Product:</strong> {item.product_title}
-                            </p>
-                            <p>
-                              <strong>Quantity:</strong> {item.quantity}
-                            </p>
-                            <p>
-                              <strong>Price:</strong> ₹{item.price}
-                            </p>
-                            <p>
-                              <strong>Description:</strong>{" "}
-                              {item.product_description ||
-                                "No description available."}
-                            </p>
-
-                            {/* View Product Button */}
-                            <Button
-                              variant="link"
-                              onClick={() =>
-                                handleViewProductDetails(item.product)
-                              }
+                        return (
+                          <div key={item.id} className="d-flex mb-3">
+                            <div
+                              className="me-3"
+                              style={{ width: "100px", height: "100px" }}
                             >
-                              View Product Details
-                            </Button>
+                              <img
+                                src={imageUrl}
+                                alt={item.product_title}
+                                className="img-fluid"
+                                style={{
+                                  objectFit: "cover",
+                                  width: "100%",
+                                  height: "100%",
+                                }}
+                                onError={(e) => {
+                                  e.target.onerror = null;
+                                  e.target.src = "/images/placeholder.jpg";
+                                }}
+                              />
+                            </div>
+                            <div>
+                              <p>
+                                <strong>Product:</strong> {item.product_title}
+                              </p>
+                              <p>
+                                <strong>Quantity:</strong> {item.quantity}
+                              </p>
+                              <p>
+                                <strong>Price:</strong> ₹{item.price}
+                              </p>
+                              <p>
+                                <strong>Description:</strong>{" "}
+                                {item.product_description ||
+                                  "No description available."}
+                              </p>
+
+                              <Button
+                                variant="link"
+                                onClick={() =>
+                                  handleViewProductDetails(item.product)
+                                }
+                              >
+                                View Product Details
+                              </Button>
+                            </div>
                           </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })
+                    ) : (
+                      <p>No items in this order.</p>
+                    )}
                   </div>
                 </Card.Body>
               </Card>

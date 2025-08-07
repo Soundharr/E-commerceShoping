@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Paper, TextField, Button, Typography, Box } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import cashewImage from "../assets/cashew.jpg";
 
 export default function RegisterAndVerify() {
@@ -10,6 +11,7 @@ export default function RegisterAndVerify() {
   const [countdown, setCountdown] = useState(300);
   const timerRef = useRef(null);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const isValidOtp = (otp) => /^\d{4,6}$/.test(otp);
@@ -84,8 +86,12 @@ export default function RegisterAndVerify() {
         throw new Error(errorData.detail || "OTP verification failed");
       }
       alert("OTP verified successfully!");
-      // You can redirect or reset form here
-      navigate("/product");
+
+      // Save email in localStorage on successful login
+      localStorage.setItem("profileName", email);
+
+      // Redirect to profile page after login success
+      navigate("/profile");
 
       setOtpSent(false);
       setOtp("");
