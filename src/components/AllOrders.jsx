@@ -9,6 +9,8 @@ import {
   Alert,
 } from "react-bootstrap";
 import Swal from "sweetalert2";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable"; // ✅ Correct import
 
 const AllOrders = () => {
   const [orders, setOrders] = useState([]);
@@ -17,11 +19,9 @@ const AllOrders = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch data without authorization
     axios
       .get("https://e-commerce-oagd.onrender.com/shop/admin/orders/")
       .then((res) => {
-        console.log("API response:", res.data);
         setOrders(res.data);
         setFilteredOrders(res.data);
         setLoading(false);
@@ -55,6 +55,50 @@ const AllOrders = () => {
     setFilteredOrders(orders);
   };
 
+  const downloadPDF = () => {
+    const doc = new jsPDF();
+    doc.text("Orders Report", 14, 15);
+
+    const tableData = filteredOrders.map((order, index) => {
+      const products = order.items.map((i) => i.product_title).join(", ");
+      const quantities = order.items.map((i) => `${i.quantity}00g`).join(", ");
+      const address = `${order.door_no}, ${order.area}, ${order.street || ""}, ${order.city}, ${order.state} - ${order.pincode}`;
+      return [
+        index + 1,
+        `${order.first_name} ${order.last_name}`,
+        address,
+        order.mobile,
+        order.user_email,
+        products,
+        quantities,
+        `₹${order.total_amount}`,
+        new Date(order.date).toLocaleString(),
+      ];
+    });
+
+    autoTable(doc, {
+      startY: 20,
+      head: [
+        [
+          "#",
+          "Name",
+          "Address",
+          "Mobile",
+          "Email",
+          "Product(s)",
+          "Quantity",
+          "Amount",
+          "Ordered On",
+        ],
+      ],
+      body: tableData,
+      styles: { fontSize: 7 },
+      headStyles: { fillColor: [41, 128, 185] },
+    });
+
+    doc.save("orders_report.pdf");
+  };
+
   return (
     <Container className="mt-5">
       <h3 className="mb-4">All Orders</h3>
@@ -69,7 +113,7 @@ const AllOrders = () => {
         </Alert>
       ) : (
         <>
-          {/* Filter Form */}
+          {/* Filter + Download Form */}
           <Form className="mb-3 d-flex gap-2 align-items-center flex-wrap">
             <Form.Label className="mb-0 me-2">Filter by Date:</Form.Label>
             <Form.Control
@@ -81,11 +125,14 @@ const AllOrders = () => {
             <Button variant="secondary" onClick={clearFilter}>
               Clear Filter
             </Button>
+            <Button variant="success" onClick={downloadPDF}>
+              Download PDF
+            </Button>
           </Form>
 
-          {/* Orders Table */}
-          <div style={{ overflowX: "auto" }}>
-            <Table striped bordered hover responsive>
+          {/* Responsive Orders Table */}
+          <div style={{ overflowX: "auto", width: "100%" }}>
+            <Table responsive striped bordered hover className="mb-0">
               <thead style={{ backgroundColor: "#e6e6e6" }}>
                 <tr>
                   <th>#</th>

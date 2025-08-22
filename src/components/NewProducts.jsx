@@ -11,12 +11,7 @@ import { useNavigate } from "react-router-dom";
 
 const NewProduct = () => {
   const navigate = useNavigate();
-
-  const paperStyle = {
-    width: 400,
-    margin: "20px auto",
-    padding: "20px",
-  };
+  const paperStyle = { width: 400, margin: "20px auto", padding: "20px" };
 
   const [newProduct, setNewProduct] = useState({
     title: "",
@@ -24,8 +19,8 @@ const NewProduct = () => {
     discount_price: "",
     description: "",
     stock: "",
-    is_active: true, // Active by default
-    category_id: "", // category ID for the backend
+    is_active: true,
+    category_id: "",
   });
 
   const [categories, setCategories] = useState([]);
@@ -33,8 +28,8 @@ const NewProduct = () => {
   const [imagePreview, setImagePreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [responseData, setResponseData] = useState(null); // ✅ NEW: to show added product response
 
-  // Fetch categories from the backend
   useEffect(() => {
     fetch("https://e-commerce-oagd.onrender.com/categories/")
       .then((res) => res.json())
@@ -42,13 +37,11 @@ const NewProduct = () => {
       .catch((err) => console.error("Failed to load categories:", err));
   }, []);
 
-  // Handle form field changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setNewProduct((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Handle image file change
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -62,29 +55,20 @@ const NewProduct = () => {
     }
   };
 
-  // Handle form submission
   const handleAdd = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
     try {
-      // Prepare the form data
       const formData = new FormData();
-      formData.append("title", newProduct.title);
-      formData.append("price", newProduct.price);
-      formData.append("discount_price", newProduct.discount_price);
-      formData.append("description", newProduct.description);
-      formData.append("stock", newProduct.stock);
-      formData.append("is_active", newProduct.is_active);
-      formData.append("category_id", newProduct.category_id);
-
-      // Append image file if selected
+      Object.entries(newProduct).forEach(([key, value]) =>
+        formData.append(key, value)
+      );
       if (imageFile) {
         formData.append("image", imageFile);
       }
 
-      // API request to create a new product
       const res = await fetch(
         "https://e-commerce-oagd.onrender.com/products/",
         {
@@ -106,8 +90,11 @@ const NewProduct = () => {
         throw new Error(JSON.stringify(data));
       }
 
+      setResponseData(data); // ✅ Save the created product info
       alert("Product added successfully");
-      navigate("/products");
+
+      // Optional: navigate or wait
+      setTimeout(() => navigate("/products"), 2000);
     } catch (err) {
       setError("Error: " + err.message);
       console.error(err);
@@ -199,7 +186,7 @@ const NewProduct = () => {
             <TextField
               select
               label="Category"
-              name="category_id" // Updated field name to category_id
+              name="category_id"
               variant="outlined"
               fullWidth
               required
@@ -216,7 +203,6 @@ const NewProduct = () => {
             </TextField>
           </Grid>
 
-          {/* Image Upload Section */}
           <Grid item>
             <input
               accept="image/*"
@@ -232,7 +218,6 @@ const NewProduct = () => {
             </label>
           </Grid>
 
-          {/* Display Image Preview */}
           {imagePreview && (
             <Grid item>
               <img
@@ -260,6 +245,45 @@ const NewProduct = () => {
           </Grid>
         </Grid>
       </form>
+
+      {/* ✅ Display product info after creation */}
+      {responseData && (
+        <Grid container direction="column" spacing={2} className="mt-4">
+          <Grid item>
+            <Typography variant="h6" color="primary">
+              ✅ Product Created:
+            </Typography>
+          </Grid>
+          <Grid item>
+            <Typography>
+              <strong>Title:</strong> {responseData.title}
+            </Typography>
+            <Typography>
+              <strong>Price:</strong> ₹{responseData.price}
+            </Typography>
+            <Typography>
+              <strong>Discount:</strong> ₹{responseData.discount_price}
+            </Typography>
+            <Typography>
+              <strong>Stock:</strong> {responseData.stock}
+            </Typography>
+            <Typography>
+              <strong>Category:</strong> {responseData.category?.name}
+            </Typography>
+            <Typography>
+              <strong>Created At:</strong>{" "}
+              {new Date(responseData.created_at).toLocaleString()}
+            </Typography>
+            {responseData.image_url && (
+              <img
+                src={responseData.image_url}
+                alt="Product"
+                style={{ width: "100%", marginTop: "10px", borderRadius: 8 }}
+              />
+            )}
+          </Grid>
+        </Grid>
+      )}
     </Paper>
   );
 };
