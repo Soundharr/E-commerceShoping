@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Table, Form, Spinner, Container, Button } from "react-bootstrap";
+import {
+  Table,
+  Form,
+  Spinner,
+  Container,
+  Button,
+  Alert,
+} from "react-bootstrap";
 import Swal from "sweetalert2";
 
 const AllOrders = () => {
@@ -10,9 +17,11 @@ const AllOrders = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Fetch data without authorization
     axios
       .get("https://e-commerce-oagd.onrender.com/shop/admin/orders/")
       .then((res) => {
+        console.log("API response:", res.data);
         setOrders(res.data);
         setFilteredOrders(res.data);
         setLoading(false);
@@ -54,9 +63,14 @@ const AllOrders = () => {
         <div className="text-center mt-5">
           <Spinner animation="border" variant="primary" />
         </div>
+      ) : orders.length === 0 ? (
+        <Alert variant="info" className="text-center">
+          No orders found.
+        </Alert>
       ) : (
         <>
-          <Form className="mb-3 d-flex gap-2 align-items-center">
+          {/* Filter Form */}
+          <Form className="mb-3 d-flex gap-2 align-items-center flex-wrap">
             <Form.Label className="mb-0 me-2">Filter by Date:</Form.Label>
             <Form.Control
               type="date"
@@ -69,6 +83,7 @@ const AllOrders = () => {
             </Button>
           </Form>
 
+          {/* Orders Table */}
           <div style={{ overflowX: "auto" }}>
             <Table striped bordered hover responsive>
               <thead style={{ backgroundColor: "#e6e6e6" }}>
