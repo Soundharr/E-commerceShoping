@@ -10,16 +10,8 @@ const AllOrders = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem("access");
-
-    if (!token) {
-      Swal.fire("Unauthorized", "Admin access required.", "warning");
-      setLoading(false);
-      return;
-    }
-
     axios
-      .get("https://e-commerce-oagd.onrender.com/shop/admin/orders/", {})
+      .get("https://e-commerce-oagd.onrender.com/shop/admin/orders/")
       .then((res) => {
         setOrders(res.data);
         setFilteredOrders(res.data);
