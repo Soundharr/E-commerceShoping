@@ -19,7 +19,7 @@ const AllOrders = () => {
     }
 
     axios
-      .get("https://e-commerce-oagd.onrender.com/shop/orders/", {
+      .get("https://e-commerce-oagd.onrender.com/shop/admin/orders/", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
