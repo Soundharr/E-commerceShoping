@@ -96,6 +96,7 @@ import EnquiryDetails from "./components/EnquiryDetails";
 import Admin from "./components/Admin";
 import AdminDashboard from "./components/AdminDashboard";
 import CrudCategory from "./components/CrudCategory";
+import AllOrders from "./components/AllOrders";
 
 // 👇 Create UserContext
 export const UserContext = createContext();
@@ -148,6 +149,7 @@ function App() {
             <Route path="/admin-dashboard" element={<AdminDashboard />} />
             <Route path="/crudcategory" element={<CrudCategory />} />
             <Route path="*" element={<NotFound />} />
+            <Route path="/admin/orders" element={<AllOrders />} />
           </Routes>
           <Footer />
         </UserContext.Provider>

@@ -59,7 +59,10 @@ const AdminDashboard = () => {
             🖋 Product CRUD
           </div>
           <div onClick={() => navigate("/crudcategory")} style={navItemStyle}>
-            🗂️ Category CRUD
+            🖋️ Category CRUD
+          </div>
+          <div onClick={() => navigate("/admin/orders")} style={navItemStyle}>
+            🗂️ All Orders
           </div>
         </nav>
         <button

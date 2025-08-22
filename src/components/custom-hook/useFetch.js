@@ -1,33 +1,21 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+// src/hooks/useAuth.js
+import { useEffect, useState } from "react";
 
-function useFetch(url) {
-  let [products, setProducts] = useState([]);
-  let [error, setError] = useState("");
-  let [isLoading, setIsLoading] = useState(true);
+export const useAuth = () => {
+  const [token, setToken] = useState(localStorage.getItem("access"));
+  const [isAuthenticated, setIsAuthenticated] = useState(!!token);
+
   useEffect(() => {
-    let fetchApi = async () => {
-      try {
-        let response = await axios.get(url);
-        setProducts(response.data);
-
-        // if(response.ok){
-        //     let data=await response.json()
-        //     setProducts(data)
-        // }
-        // else{
-        //     throw new Error("Data Not Found")
-        // }
-      } catch (error) {
-        setError(error.message);
-      } finally {
-        setIsLoading(false);
-      }
+    const handleAuthChange = () => {
+      const newToken = localStorage.getItem("access");
+      setToken(newToken);
+      setIsAuthenticated(!!newToken);
     };
-    fetchApi();
+
+    // Listen to token changes (e.g., after login)
+    window.addEventListener("authChanged", handleAuthChange);
+    return () => window.removeEventListener("authChanged", handleAuthChange);
   }, []);
 
-  return { products, error, isLoading, setProducts };
-}
-
-export default useFetch;
+  return { token, isAuthenticated };
+};

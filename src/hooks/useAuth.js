@@ -1,24 +1,32 @@
 import { useState, useEffect } from "react";
 
-// Custom hook to check if the user is authenticated
 export function useAuth() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(() => {
+    try {
+      return localStorage.getItem("access") || undefined;
+    } catch {
+      return undefined; // in SSR or restricted environments
+    }
+  });
 
   useEffect(() => {
-    // Check if user is authenticated (e.g., check localStorage for a token)
-    const token = localStorage.getItem("token");
-
-    if (token) {
-      // Decode the token or check if the user is authenticated
-      const userData = JSON.parse(localStorage.getItem("user"));
-      setUser(userData);
-      setIsAuthenticated(true);
-    } else {
-      setIsAuthenticated(false);
-      setUser(null);
+    function syncToken() {
+      try {
+        const t = localStorage.getItem("access");
+        setToken(t || undefined);
+      } catch {
+        setToken(undefined);
+      }
     }
+    window.addEventListener("storage", syncToken);
+    return () => window.removeEventListener("storage", syncToken);
   }, []);
 
-  return { user, isAuthenticated };
+  console.log("Auth token from useAuth:", token);
+  console.log(
+    "Auth token directly from localStorage:",
+    localStorage.getItem("access")
+  );
+
+  return { token };
 }

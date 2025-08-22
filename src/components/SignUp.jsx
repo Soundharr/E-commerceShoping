@@ -1,9 +1,11 @@
+// src/pages/Signup.jsx
+
 import React, { useState, useEffect, useRef } from "react";
 import { Paper, TextField, Button, Typography, Box } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import cashewImage from "../assets/cashew.jpg";
 
-export default function RegisterAndVerify() {
+export default function Signup() {
   const [email, setEmail] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [otp, setOtp] = useState("");
@@ -81,23 +83,33 @@ export default function RegisterAndVerify() {
           body: JSON.stringify({ email, otp }),
         }
       );
+
+      const data = await response.json();
+      console.log("✅ OTP Verification Response:", data);
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || "OTP verification failed");
+        throw new Error(data.detail || "OTP verification failed");
       }
+
+      // ✅ Check if access token is present
+      if (!data.access || !data.refresh) {
+        throw new Error(
+          "No access/refresh token returned. Please contact support."
+        );
+      }
+
+      // ✅ Save token & user to localStorage
+      localStorage.setItem("access", data.access);
+      localStorage.setItem("refresh", data.refresh);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      // 🔔 Let other components know the auth state has changed
+      window.dispatchEvent(new Event("authChanged"));
+
       alert("OTP verified successfully!");
-
-      // Save email in localStorage on successful login
-      localStorage.setItem("profileName", email);
-
-      // Redirect to profile page after login success
-      navigate("/profile");
-
-      setOtpSent(false);
-      setOtp("");
-      setEmail("");
-      setCountdown(300);
+      navigate("/");
     } catch (err) {
+      console.error("❌ OTP verification failed:", err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -118,7 +130,6 @@ export default function RegisterAndVerify() {
         backgroundImage: `url(${cashewImage})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
         minHeight: "100vh",
         display: "flex",
         justifyContent: "center",
@@ -134,17 +145,10 @@ export default function RegisterAndVerify() {
           maxWidth: 400,
           width: "100%",
           borderRadius: 2,
-          boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
         }}
       >
-        <Typography
-          variant="h5"
-          component="h1"
-          textAlign="center"
-          gutterBottom
-          sx={{ color: "#040404" }}
-        >
-          {otpSent ? "Enter OTP" : "Enter your email"}
+        <Typography variant="h5" textAlign="center" gutterBottom>
+          {otpSent ? "Enter OTP" : "Register with Email"}
         </Typography>
 
         {error && (
@@ -161,6 +165,7 @@ export default function RegisterAndVerify() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              fullWidth
               disabled={loading}
               error={email !== "" && !isValidEmail(email)}
               helperText={
@@ -168,8 +173,6 @@ export default function RegisterAndVerify() {
                   ? "Enter a valid email"
                   : ""
               }
-              fullWidth
-              aria-label="email input"
               sx={{ mb: 3 }}
             />
           )}
@@ -182,15 +185,14 @@ export default function RegisterAndVerify() {
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
                 required
+                fullWidth
                 disabled={loading}
                 error={otp !== "" && !isValidOtp(otp)}
                 helperText={
                   otp !== "" && !isValidOtp(otp) ? "Enter a valid OTP" : ""
                 }
-                fullWidth
-                aria-label="otp input"
-                sx={{ mb: 2 }}
                 inputProps={{ maxLength: 6 }}
+                sx={{ mb: 2 }}
               />
               <Typography variant="body2" textAlign="center" mb={2}>
                 Time remaining: {formatTime(countdown)}
@@ -199,13 +201,12 @@ export default function RegisterAndVerify() {
           )}
 
           <Button
-            variant="contained"
             type="submit"
+            fullWidth
+            variant="contained"
             disabled={
               loading || (otpSent ? !isValidOtp(otp) : !isValidEmail(email))
             }
-            fullWidth
-            size="large"
           >
             {loading
               ? otpSent

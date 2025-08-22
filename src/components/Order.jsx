@@ -2,28 +2,33 @@ import React, { useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
-import { Modal, Card, Form, Row, Col } from "react-bootstrap";
-import Button from "react-bootstrap/Button";
+import { Modal, Card, Form, Row, Col, Button } from "react-bootstrap";
+
+// Optional: If using useAuth hook
 import { useAuth } from "../hooks/useAuth";
 
 const Order = () => {
   const { id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuth();
-
   const product = location.state?.product;
+
+  // Use token from hook or localStorage
+  const { token: hookToken } = useAuth();
+  const token = hookToken || localStorage.getItem("access");
 
   const [formData, setFormData] = useState({
     first_name: "",
     last_name: "",
     mobile: "",
     door_no: "",
+    street: "",
     area: "",
     city: "",
     state: "",
     pincode: "",
     quantity: 100,
+    total_amount: 0,
   });
 
   const [showModal, setShowModal] = useState(false);
@@ -57,9 +62,9 @@ const Order = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!isAuthenticated) {
+    if (!token) {
       Swal.fire({
-        title: "Please Sign Up",
+        title: "Please Log In",
         html: `To place an order, you must <a href="/signup" class="text-primary fw-bold">Sign Up</a> or <a href="/signup" class="text-success fw-bold">Log In</a>.`,
         icon: "info",
         showCancelButton: true,
@@ -75,20 +80,25 @@ const Order = () => {
     setLoading(true);
 
     try {
-      const total_amount =
-        ((product.discount_price || product.price) * formData.quantity) / 100;
+      // Calculate total amount here manually
+      const pricePer100g = product.discount_price || product.price;
+      const totalAmount = (pricePer100g * formData.quantity) / 100;
+
+      // Send quantity in units if backend expects that (e.g. quantity in 100g units)
+      const quantityUnits = formData.quantity / 100;
 
       const payload = {
         ...formData,
+        total_amount: totalAmount,
         items: [
           {
             product: product.id,
-            quantity: formData.quantity,
+            quantity: quantityUnits,
           },
         ],
       };
 
-      const token = localStorage.getItem("token") || user?.token;
+      console.log("📦 Payload being sent:", payload);
 
       await axios.post(
         "https://e-commerce-oagd.onrender.com/shop/orders/",
@@ -105,21 +115,28 @@ const Order = () => {
 
       Swal.fire({
         title: "Order Confirmed!",
-        text: `Your order for ${product.title} has been placed. Total: ₹${total_amount}.`,
+        text: `Your order for ${product.title} has been placed. Total: ₹${totalAmount.toFixed(
+          2
+        )}.`,
         icon: "success",
         confirmButtonText: "Okay",
       }).then(() => navigate("/"));
     } catch (err) {
       setLoading(false);
+
+      if (err.response) {
+        console.error("🔥 Error response from backend:", err.response.data);
+      }
+
       if (err.response?.status === 401) {
+        // Handle unauthorized if needed
+      } else if (err.response?.status === 400) {
+        const errorDetail = err.response.data;
+
         Swal.fire({
-          title: "Unauthorized!",
-          html: `You must <a href="/signup" class="text-success fw-bold">Log In</a> to place an order.`,
-          icon: "warning",
-          showCancelButton: true,
-          confirmButtonText: "Go to Login",
-        }).then((res) => {
-          if (res.isConfirmed) navigate("/signup");
+          title: "Invalid Order",
+          html: `<pre>${JSON.stringify(errorDetail, null, 2)}</pre>`,
+          icon: "error",
         });
       } else {
         Swal.fire({
@@ -130,9 +147,6 @@ const Order = () => {
       }
     }
   };
-
-  const totalPrice =
-    ((product.discount_price || product.price) * formData.quantity) / 100;
 
   return (
     <div className="container py-4">
@@ -167,11 +181,18 @@ const Order = () => {
                 )}
               </Card.Text>
               <Card.Text>
-                <strong>Quantity:</strong> {formData.quantity}g
+                <strong>Quantity:</strong> {formData.quantity} g
               </Card.Text>
               <Card.Text>
                 <strong>Total:</strong>{" "}
-                <span className="text-primary fs-5 fw-bold">₹{totalPrice}</span>
+                <span className="text-primary fs-5 fw-bold">
+                  ₹
+                  {(
+                    ((product.discount_price || product.price) *
+                      formData.quantity) /
+                    100
+                  ).toFixed(2)}
+                </span>
               </Card.Text>
             </Card.Body>
           </Card>
@@ -207,7 +228,7 @@ const Order = () => {
                           : "text"
                       }
                       placeholder={`Enter ${label}`}
-                      value={formData[field]}
+                      value={formData[field] || ""}
                       onChange={handleChange}
                       required
                     />
@@ -245,9 +266,11 @@ const Order = () => {
                 </Button>
                 <span className="ms-auto fw-bold fs-6 text-primary">
                   Total: ₹
-                  {((product.discount_price || product.price) *
-                    formData.quantity) /
-                    100}
+                  {(
+                    ((product.discount_price || product.price) *
+                      formData.quantity) /
+                    100
+                  ).toFixed(2)}
                 </span>
               </Col>
             </Row>
@@ -274,7 +297,7 @@ const Order = () => {
         </div>
       </div>
 
-      {/* Image Preview Modal */}
+      {/* Image Modal */}
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Product Image</Modal.Title>

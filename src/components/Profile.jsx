@@ -10,7 +10,7 @@ const Profile = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("access");
 
     if (!token) {
       console.warn("No token found in localStorage");
@@ -18,7 +18,6 @@ const Profile = () => {
       return;
     }
 
-    // Fetch the orders for the current user
     axios
       .get("https://e-commerce-oagd.onrender.com/shop/orders/", {
         headers: {
@@ -30,20 +29,12 @@ const Profile = () => {
         setLoading(false);
       })
       .catch((err) => {
-        console.error(
-          "Failed to fetch orders:",
-          err.response?.data || err.message
-        );
+        console.error("Failed to fetch orders:", err);
         setLoading(false);
-        Swal.fire(
-          "Error",
-          "Failed to fetch your orders. Please try again later.",
-          "error"
-        );
+        Swal.fire("Error", "Failed to fetch your orders.", "error");
       });
   }, []);
 
-  // Navigate to product details page
   const handleViewProductDetails = (productId) => {
     if (!productId) {
       Swal.fire("Info", "Product details not available.", "info");
@@ -56,7 +47,7 @@ const Profile = () => {
     <div
       className="container mt-5"
       style={{
-        backgroundColor: "#c8beb1",
+        backgroundColor: "#f5f5f5",
         padding: "20px",
         borderRadius: "8px",
         minHeight: "80vh",
@@ -74,96 +65,64 @@ const Profile = () => {
       ) : orders.length === 0 ? (
         <p>No orders found.</p>
       ) : (
-        <Row>
-          {orders.map((order) => (
-            <Col md={4} key={order.id} className="mb-4">
-              <Card>
-                <Card.Header>
-                  <strong>Order ID:</strong> {order.id} -{" "}
-                  <strong>Status:</strong> {order.status}
-                </Card.Header>
-                <Card.Body>
-                  <p>
-                    <strong>Name:</strong> {order.first_name} {order.last_name}
-                  </p>
-                  <p>
-                    <strong>Address:</strong> {order.door_no}, {order.area},{" "}
-                    {order.city}, {order.state} - {order.pincode}
-                  </p>
-                  <p>
-                    <strong>Total Amount:</strong> ₹{order.total_amount}
-                  </p>
-                  <p>
-                    <strong>Ordered On:</strong>{" "}
-                    {new Date(order.date).toLocaleString()}
-                  </p>
+        orders.map((order) => (
+          <Card key={order.id} className="mb-4 shadow-sm">
+            <Card.Header style={{ backgroundColor: "#e0e0e0" }}></Card.Header>
+            <Card.Body>
+              {/* USER INFO */}
+              <h5>
+                <u>User Details</u>
+              </h5>
+              <p>
+                <strong>Name:</strong> {order.first_name} {order.last_name}
+              </p>
+              <p>
+                <strong>Address:</strong> {order.door_no}, {order.area},{" "}
+                {order.street || ""}, {order.city}, {order.state} -{" "}
+                {order.pincode}
+              </p>
+              <p>
+                <strong>Mobile:</strong> {order.mobile}
+              </p>
+              <p>
+                <strong>Email:</strong> {order.user_email}
+              </p>
 
-                  <div>
-                    <strong>Order Items:</strong>
-                    {order.items?.length > 0 ? (
-                      order.items.map((item) => {
-                        // Determine product image URL or fallback
-                        const imageUrl =
-                          item.product_image_url || "/images/placeholder.jpg";
-
-                        return (
-                          <div key={item.id} className="d-flex mb-3">
-                            <div
-                              className="me-3"
-                              style={{ width: "100px", height: "100px" }}
-                            >
-                              <img
-                                src={imageUrl}
-                                alt={item.product_title}
-                                className="img-fluid"
-                                style={{
-                                  objectFit: "cover",
-                                  width: "100%",
-                                  height: "100%",
-                                }}
-                                onError={(e) => {
-                                  e.target.onerror = null;
-                                  e.target.src = "/images/placeholder.jpg";
-                                }}
-                              />
-                            </div>
-                            <div>
-                              <p>
-                                <strong>Product:</strong> {item.product_title}
-                              </p>
-                              <p>
-                                <strong>Quantity:</strong> {item.quantity}
-                              </p>
-                              <p>
-                                <strong>Price:</strong> ₹{item.price}
-                              </p>
-                              <p>
-                                <strong>Description:</strong>{" "}
-                                {item.product_description ||
-                                  "No description available."}
-                              </p>
-
-                              <Button
-                                variant="link"
-                                onClick={() =>
-                                  handleViewProductDetails(item.product)
-                                }
-                              >
-                                View Product Details
-                              </Button>
-                            </div>
-                          </div>
-                        );
-                      })
-                    ) : (
-                      <p>No items in this order.</p>
-                    )}
+              {/* ORDER INFO */}
+              <h5 className="mt-4">
+                <u>Order Details</u>
+              </h5>
+              {order.items?.length > 0 ? (
+                order.items.map((item) => (
+                  <div key={item.id} className="border p-3 mb-3">
+                    <p>
+                      <strong>Product:</strong> {item.product_title}
+                    </p>
+                    <p>
+                      <strong>Quantity:</strong> {item.quantity}00g
+                    </p>
+                    <Button
+                      variant="link"
+                      onClick={() => handleViewProductDetails(item.product)}
+                    >
+                      View Product Details
+                    </Button>
                   </div>
-                </Card.Body>
-              </Card>
-            </Col>
-          ))}
-        </Row>
+                ))
+              ) : (
+                <p>No items in this order.</p>
+              )}
+
+              <p>
+                <strong>Total Amount:</strong> ₹{order.total_amount}
+              </p>
+              <p>
+                <strong>Ordered On:</strong>{" "}
+                {new Date(order.date).toLocaleString()}
+              </p>
+            </Card.Body>
+          </Card>
+        ))
       )}
     </div>
   );

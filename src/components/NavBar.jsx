@@ -11,8 +11,8 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import { MdShoppingCart, MdPerson } from "react-icons/md";
 import logo from "/cashew.png"; // Adjust path if needed
-import axios from "axios"; // For fetching categories
-import debounce from "lodash/debounce"; // For debouncing the search input
+import axios from "axios";
+import debounce from "lodash/debounce";
 
 function NavBar() {
   const navigate = useNavigate();
@@ -21,7 +21,7 @@ function NavBar() {
   const [searchTerm, setSearchTerm] = useState("");
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [expanded, setExpanded] = useState(false); // Track the navbar state for mobile
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     // Load user info from localStorage on mount
@@ -55,7 +55,7 @@ function NavBar() {
 
     fetchCategories();
 
-    // Listen for changes in localStorage (e.g. login/logout)
+    // Listen for localStorage changes (login/logout or cart updates)
     const onStorageChange = () => {
       const updatedUser = localStorage.getItem("user");
       setUser(updatedUser ? JSON.parse(updatedUser) : null);
@@ -81,24 +81,25 @@ function NavBar() {
     localStorage.removeItem("user");
     setUser(null);
     navigate("/signup");
+    setExpanded(false);
   };
 
-  // Search and category update handler
   const handleSearchChange = debounce((search, category) => {
     navigate(
-      `/?search=${encodeURIComponent(search)}&category=${encodeURIComponent(category)}`
+      `/?search=${encodeURIComponent(search)}&category=${encodeURIComponent(
+        category
+      )}`
     );
-  }, 500); // 500ms debounce time
+  }, 500);
 
   useEffect(() => {
     handleSearchChange(searchTerm, selectedCategory);
   }, [searchTerm, selectedCategory]);
 
-  // Handle link click and close navbar on mobile
   const handleNavLinkClick = (link) => {
     navigate(link);
     if (window.innerWidth <= 768) {
-      setExpanded(false); // Close navbar when clicking on a link on mobile
+      setExpanded(false);
     }
   };
 
@@ -109,12 +110,11 @@ function NavBar() {
       variant="dark"
       style={{ backgroundColor: "#A9D39E" }}
       className="shadow-sm"
-      expanded={expanded} // Control navbar expansion manually
+      expanded={expanded}
     >
       <Container fluid>
         <Navbar.Brand as={Link} to="/" className="d-flex align-items-center">
-          <img src={logo} alt="CashewFactory" height={60} className="me-2" />{" "}
-          {/* Adjusted the height */}
+          <img src={logo} alt="CashewFactory" height={60} className="me-2" />
           <span
             style={{ fontWeight: "700", fontSize: "1.25rem", color: "white" }}
           >
@@ -122,10 +122,9 @@ function NavBar() {
           </span>
         </Navbar.Brand>
 
-        {/* Hamburger for mobile */}
         <Navbar.Toggle
           aria-controls="navbarScroll"
-          onClick={() => setExpanded(!expanded)} // Toggle navbar state
+          onClick={() => setExpanded(!expanded)}
         />
         <Navbar.Collapse id="navbarScroll">
           <Nav
@@ -145,15 +144,9 @@ function NavBar() {
             <Nav.Link onClick={() => handleNavLinkClick("/admin")}>
               Admin
             </Nav.Link>
-            {/* <Nav.Link onClick={() => handleNavLinkClick("/todoapp")}>
-              TakeNotes
-            </Nav.Link> */}
-            {/* <Nav.Link onClick={() => handleNavLinkClick("/todoapp")}>
-              TakeNotes
-            </Nav.Link> */}
           </Nav>
+
           <div className="d-flex align-items-center flex-grow-1 me-3">
-            {/* Category Filter Dropdown for Mobile */}
             <Form.Control
               as="select"
               value={selectedCategory}
@@ -169,7 +162,6 @@ function NavBar() {
               ))}
             </Form.Control>
 
-            {/* Search Input */}
             <Form.Control
               type="search"
               placeholder="Search for products"
@@ -181,14 +173,13 @@ function NavBar() {
             />
           </div>
 
-          {/* Cart Icon */}
           <Button
             variant="light"
             className="position-relative me-3"
             onClick={() => {
               navigate("/cartlist");
               if (window.innerWidth <= 768) {
-                setExpanded(false); // Close navbar when clicking cart on mobile
+                setExpanded(false);
               }
             }}
             style={{
@@ -210,7 +201,6 @@ function NavBar() {
             )}
           </Button>
 
-          {/* User Dropdown */}
           {user ? (
             <NavDropdown
               title={
@@ -240,55 +230,44 @@ function NavBar() {
               <NavDropdown.Item onClick={handleLogout}>Logout</NavDropdown.Item>
             </NavDropdown>
           ) : (
-            <>
-              <Nav.Link
-                as={Link}
-                to="/signup"
-                className="text-light"
-                style={{ marginRight: "0.5rem" }}
-                onClick={() => setExpanded(false)} // Close navbar on Signup click
-              >
-                Signup
-              </Nav.Link>
-              <Nav.Link
-                as={Link}
-                to="/profile"
-                className="text-light"
-                style={{ marginRight: "0.5rem" }}
-                onClick={() => setExpanded(false)} // Close navbar on Profile click
-              >
-                Profile
-              </Nav.Link>
-            </>
+            <Nav.Link
+              as={Link}
+              to="/signup"
+              className="text-light"
+              style={{ marginRight: "0.5rem" }}
+              onClick={() => setExpanded(false)}
+            >
+              Signup
+            </Nav.Link>
           )}
         </Navbar.Collapse>
       </Container>
 
       <style type="text/css">{`
-    .navbar-dark .navbar-nav .nav-link {
-      color: white;
-      font-weight: 600;
-    }
-    .navbar-dark .navbar-nav .nav-link:hover,
-    .navbar-dark .navbar-nav .nav-link.active {
-      color: #ffe500;
-    }
-    .btn-light {
-      background-color: transparent !important;
-      color: white !important;
-      border: none !important;
-    }
-    .btn-light:hover {
-      background-color: rgba(255, 255, 255, 0.2) !important;
-      color: white !important;
-    }
+        .navbar-dark .navbar-nav .nav-link {
+          color: white;
+          font-weight: 600;
+        }
+        .navbar-dark .navbar-nav .nav-link:hover,
+        .navbar-dark .navbar-nav .nav-link.active {
+          color: #ffe500;
+        }
+        .btn-light {
+          background-color: transparent !important;
+          color: white !important;
+          border: none !important;
+        }
+        .btn-light:hover {
+          background-color: rgba(255, 255, 255, 0.2) !important;
+          color: white !important;
+        }
 
-    @media (max-width: 768px) {
-      .navbar-dark .navbar-nav .nav-link {
-        font-size: 0.9rem;
-      }
-    }
-  `}</style>
+        @media (max-width: 768px) {
+          .navbar-dark .navbar-nav .nav-link {
+            font-size: 0.9rem;
+          }
+        }
+      `}</style>
     </Navbar>
   );
 }
